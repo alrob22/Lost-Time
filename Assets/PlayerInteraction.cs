@@ -5,12 +5,12 @@ using UnityEngine;
 public class PlayerInteraction : MonoBehaviour
 {
     public float interactionRange = 3f; // How close the player needs to be to interact
-    public KeyCode interactionKey = KeyCode.E; // Key to press for interaction
+    public string interactionButton = "Submit"; // Key to press for interaction
 
     void Update()
     {
-        // Check if the player presses the interaction key
-        if (Input.GetAxisRaw("Submit") == 1f)
+        // Check if the player presses the interaction button
+        if (Input.GetAxisRaw(interactionButton) == 1f)
         {
             TryInteract();
         }
@@ -18,7 +18,6 @@ public class PlayerInteraction : MonoBehaviour
 
     void TryInteract()
     {
-        // Perform a raycast to detect interactable objects
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, interactionRange);
         foreach (Collider collider in hitColliders)
         {

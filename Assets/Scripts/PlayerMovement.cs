@@ -5,47 +5,49 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveSpeed = 5f; // Speed of movement
+    public float moveSpeed = .5f; // Speed of movement
     public Transform currentCamera;
-    private Vector3 forward;
-    private Vector3 right;
-
+    private Rigidbody rb;
     private void Start() {
         currentCamera = Camera.main.transform;
-
+        rb = GetComponent<Rigidbody>();
     }
-    void Update()
+    void FixedUpdate()
     {
-        // Get input from the player
-        float horizontalInput = Input.GetAxis("Horizontal"); // A/D or Left/Right Arrow
-        float verticalInput = Input.GetAxis("Vertical");     // W/S or Up/Down Arrow
+        // Get input from arrow keys or WASD
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
 
-        Vector3 forward = currentCamera.forward;
-        Vector3 right = currentCamera.right;
+        // Calculate movement direction relative to the camera
+        Vector3 forward = currentCamera.transform.forward;
+        Vector3 right = currentCamera.transform.right;
+
+        // Ignore the camera's vertical direction
         forward.y = 0f;
         right.y = 0f;
+
+        // Normalize directions
         forward.Normalize();
         right.Normalize();
 
-        Vector3 movement = (forward * verticalInput + right * horizontalInput).normalized;
+        // Calculate the desired movement direction
+        Vector3 movement = (forward * moveVertical + right * moveHorizontal).normalized;
 
-        float speedy = 1f;
+        // Move the Rigidbody
+        rb.MovePosition(transform.position + movement * moveSpeed * Time.fixedDeltaTime);
 
-
-        if(Input.GetAxisRaw("Cancel") == 1f) {
-            speedy *= 3f;
-        }
-
-        // Move the player only if there is input
-        if (movement.magnitude > 0)
+        // Rotate the character to face the movement direction
+        if (movement != Vector3.zero)
         {
-            transform.Translate(movement * moveSpeed * Time.deltaTime * speedy, Space.World);
-
-            // Rotate the player to face the movement direction
-            Quaternion toRotation = Quaternion.LookRotation(movement, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, 10f * Time.deltaTime);
+            Quaternion targetRotation = Quaternion.LookRotation(movement);
+            rb.rotation = Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 10f);
         }
+
+        // Prevent unwanted angular velocity (spinning)
+        rb.angularVelocity = Vector3.zero;
+        rb.velocity = Vector3.zero;
     }
+
 
     public void UpdateCamera(Transform newCamera)
     {
