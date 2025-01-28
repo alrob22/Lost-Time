@@ -210,7 +210,7 @@ Transform:
   m_GameObject: {fileID: 329800206}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.23999977, y: 3.7899997, z: -26.260002}
+  m_LocalPosition: {x: -45.64, y: 3.86, z: -27.220001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -337,6 +337,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   newPlayerPos: {fileID: 699546925}
+  newPlaneNum: 2
 --- !u!1 &822976322
 GameObject:
   m_ObjectHideFlags: 0
@@ -803,6 +804,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c18294e26b454445a61e223ca798a00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  planeNum: 0
   moveSpeed: 5
 --- !u!143 &1639885151
 CharacterController:
@@ -1306,6 +1308,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   newPlayerPos: {fileID: 696404754}
+  newPlaneNum: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

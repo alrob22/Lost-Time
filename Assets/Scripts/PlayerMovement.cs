@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 public class PlayerMovement : MonoBehaviour
 {
     private Transform camTrans;
-    private int planeNum;
+    public int planeNum;
     private Vector3 camLeftBound;
     private Vector3 camRightBound;
     public float moveSpeed = 5f; // Speed of movement

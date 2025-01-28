@@ -5,11 +5,14 @@ using UnityEngine;
 public class Shot : MonoBehaviour
 {
     private Transform player;
+    private PlayerMovement playerMovement;
     public Transform newPlayerPos;
+    public int newPlaneNum;
 
     void Start()
     {
         this.player = GameObject.FindWithTag("Player").transform;
+        this.playerMovement = player.GetComponent<PlayerMovement>();
     }
 
     public void CutToShot()
@@ -19,6 +22,12 @@ public class Shot : MonoBehaviour
 
         player.localPosition = newPlayerPos.position;
         player.localRotation = newPlayerPos.rotation;
+
+        // Change the planeNum
+        if (playerMovement != null)
+        {
+            playerMovement.planeNum = newPlaneNum;
+        }
     }
 
     void OnDrawGizmosSelected()
