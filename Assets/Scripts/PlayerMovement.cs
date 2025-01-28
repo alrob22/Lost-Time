@@ -43,8 +43,8 @@ public class PlayerMovement : MonoBehaviour
         // create left and right camera bounds
         if (planeNum == 1)
         {
-            camLeftBound = new Vector3(-14.7f, 3.79f, -26.26f);
-            camRightBound = new Vector3(13.4f, 3.79f, -26.26f);
+            camLeftBound = new Vector3(-14.7f, camTrans.position.y, camTrans.position.z);
+            camRightBound = new Vector3(13.4f, camTrans.position.y, camTrans.position.z);
         }
 
         // Determine which axes to lock for camera
