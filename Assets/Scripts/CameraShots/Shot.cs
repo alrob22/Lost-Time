@@ -11,7 +11,7 @@ public class Shot : MonoBehaviour
 
     void Start()
     {
-        this.player = GameObject.FindWithTag("Player").transform;
+        this.player = GameObject.FindWithTag("Player").GetComponent<Rigidbody>().transform;
         this.playerMovement = player.GetComponent<PlayerMovement>();
     }
 
