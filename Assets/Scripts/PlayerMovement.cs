@@ -13,13 +13,15 @@ public class PlayerMovement : MonoBehaviour
     public float moveSpeed = 5f; // Speed of movement
     private Vector3 forward;
     private Vector3 right;
+    public Rigidbody rb;
 
     private void Start() {
         camTrans = Camera.main.transform;
         planeNum = 1;
+        rb = GetComponent<Rigidbody>();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         // Get input from the player
         float horizontalInput = Input.GetAxis("Horizontal"); // A/D or Left/Right Arrow
@@ -59,11 +61,11 @@ public class PlayerMovement : MonoBehaviour
         if (movement.magnitude > 0)
         {
             // player
-            transform.Translate(movement * moveSpeed * Time.deltaTime * speedy, Space.World);
+            rb.MovePosition(transform.position + movement * moveSpeed * Time.fixedDeltaTime);
 
             // Rotate the player to face the movement direction
             Quaternion toRotation = Quaternion.LookRotation(movement, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, 10f * Time.deltaTime);
+            rb.rotation = Quaternion.Slerp(transform.rotation, toRotation, 10f * Time.deltaTime);
 
             // camera
             Vector3 newCamPosition = camTrans.position + movement * moveSpeed * Time.deltaTime * speedy;
@@ -112,6 +114,8 @@ public class PlayerMovement : MonoBehaviour
             }
 
             camTrans.position = newCamPosition;
+            rb.angularVelocity = Vector3.zero;
+            rb.velocity = Vector3.zero;
         }
     }
 }

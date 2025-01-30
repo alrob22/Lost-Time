@@ -13,7 +13,13 @@ public class Interactable : MonoBehaviour
         // Example: Change the object's color
         GetComponent<Renderer>().material.color = Color.green;
 
-        // You can add more logic here, like playing a sound, opening a door, etc.
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+
+        Vector3 targetPoint = player.transform.position;
+        targetPoint.y = transform.position.y;
+        //targetPoint.z = transform.position.z;
+
+        transform.LookAt(targetPoint);
     }
 
     private void OnDrawGizmosSelected() {
