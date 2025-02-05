@@ -42,19 +42,19 @@ public class PlayerMovement : MonoBehaviour
             speedy *= 3f;
         }
 
-        // create left and right camera bounds
-        if (planeNum == 1)
-        {
-            camLeftBound = new Vector3(-14.7f, camTrans.position.y, camTrans.position.z);
-            camRightBound = new Vector3(13.4f, camTrans.position.y, camTrans.position.z);
-        }
+        //// create left and right camera bounds
+        //if (planeNum == 1)
+        //{
+        //    camLeftBound = new Vector3(-14.7f, camTrans.position.y, camTrans.position.z);
+        //    camRightBound = new Vector3(13.4f, camTrans.position.y, camTrans.position.z);
+        //}
 
-        // Determine which axes to lock for camera
-        bool lockX = camLeftBound.x == camRightBound.x;
+        //// Determine which axes to lock for camera
+        //bool lockX = camLeftBound.x == camRightBound.x;
         //Debug.Log("lockX: " + lockX);
-        bool lockY = camLeftBound.y == camRightBound.y;
+        //bool lockY = camLeftBound.y == camRightBound.y;
         //Debug.Log("lockY: " + lockY);
-        bool lockZ = camLeftBound.z == camRightBound.z;
+        //bool lockZ = camLeftBound.z == camRightBound.z;
         //Debug.Log("lockZ: " + lockZ);
 
         // Move the player and camera only if there is input
@@ -67,55 +67,57 @@ public class PlayerMovement : MonoBehaviour
             Quaternion toRotation = Quaternion.LookRotation(movement, Vector3.up);
             rb.rotation = Quaternion.Slerp(transform.rotation, toRotation, 10f * Time.deltaTime);
 
-            // camera
-            Vector3 newCamPosition = camTrans.position + movement * moveSpeed * Time.deltaTime * speedy;
-
-            // Only move the camera if the player is within bounds
-            if (!lockX)
-            {
-                if (transform.position.x >= camLeftBound.x && transform.position.x <= camRightBound.x)
-                {
-                    newCamPosition.x = Mathf.Clamp(newCamPosition.x, camLeftBound.x, camRightBound.x);
-                } else
-                {
-                    newCamPosition.x = camTrans.position.x; // Don't allow the camera to move if player is out of bounds
-                }
-            } else
-            {
-                newCamPosition.x = camTrans.position.x; // Lock X-axis if specified
-            }
-
-            if (!lockY)
-            {
-                if (transform.position.y >= camLeftBound.y && transform.position.y <= camRightBound.y)
-                {
-                    newCamPosition.y = Mathf.Clamp(newCamPosition.y, camLeftBound.y, camRightBound.y);
-                } else
-                {
-                    newCamPosition.y = camTrans.position.y; // Don't allow the camera to move if player is out of bounds
-                }
-            } else
-            {
-                newCamPosition.y = camTrans.position.y; // Lock Y-axis if specified
-            }
-
-            if (!lockZ)
-            {
-                if (transform.position.z >= camLeftBound.z && transform.position.z <= camRightBound.z)
-                {
-                    newCamPosition.z = Mathf.Clamp(newCamPosition.z, camLeftBound.z, camRightBound.z);
-                } else
-                {
-                    newCamPosition.z = camTrans.position.z; // Don't allow the camera to move if player is out of bounds
-                }
-            } else
-            {
-                newCamPosition.z = camTrans.position.z; // Lock Z-axis if specified
-            }
-
-            camTrans.position = newCamPosition;
+            // player rigidbody
             rb.angularVelocity = Vector3.zero;
             rb.velocity = Vector3.zero;
+
+            //// camera
+            //Vector3 newCamPosition = camTrans.position + movement * moveSpeed * Time.deltaTime * speedy;
+
+            //// Only move the camera if the player is within bounds
+            //if (!lockX)
+            //{
+            //    if (transform.position.x >= camLeftBound.x && transform.position.x <= camRightBound.x)
+            //    {
+            //        newCamPosition.x = Mathf.Clamp(newCamPosition.x, camLeftBound.x, camRightBound.x);
+            //    } else
+            //    {
+            //        newCamPosition.x = camTrans.position.x; // Don't allow the camera to move if player is out of bounds
+            //    }
+            //} else
+            //{
+            //    newCamPosition.x = camTrans.position.x; // Lock X-axis if specified
+            //}
+
+            //if (!lockY)
+            //{
+            //    if (transform.position.y >= camLeftBound.y && transform.position.y <= camRightBound.y)
+            //    {
+            //        newCamPosition.y = Mathf.Clamp(newCamPosition.y, camLeftBound.y, camRightBound.y);
+            //    } else
+            //    {
+            //        newCamPosition.y = camTrans.position.y; // Don't allow the camera to move if player is out of bounds
+            //    }
+            //} else
+            //{
+            //    newCamPosition.y = camTrans.position.y; // Lock Y-axis if specified
+            //}
+
+            //if (!lockZ)
+            //{
+            //    if (transform.position.z >= camLeftBound.z && transform.position.z <= camRightBound.z)
+            //    {
+            //        newCamPosition.z = Mathf.Clamp(newCamPosition.z, camLeftBound.z, camRightBound.z);
+            //    } else
+            //    {
+            //        newCamPosition.z = camTrans.position.z; // Don't allow the camera to move if player is out of bounds
+            //    }
+            //} else
+            //{
+            //    newCamPosition.z = camTrans.position.z; // Lock Z-axis if specified
+            //}
+
+            //camTrans.position = newCamPosition;
         }
     }
 }
