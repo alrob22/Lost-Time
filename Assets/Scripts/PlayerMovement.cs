@@ -51,11 +51,11 @@ public class PlayerMovement : MonoBehaviour
 
         // Determine which axes to lock for camera
         bool lockX = camLeftBound.x == camRightBound.x;
-        Debug.Log("lockX: " + lockX);
+        //Debug.Log("lockX: " + lockX);
         bool lockY = camLeftBound.y == camRightBound.y;
-        Debug.Log("lockY: " + lockY);
+        //Debug.Log("lockY: " + lockY);
         bool lockZ = camLeftBound.z == camRightBound.z;
-        Debug.Log("lockZ: " + lockZ);
+        //Debug.Log("lockZ: " + lockZ);
 
         // Move the player and camera only if there is input
         if (movement.magnitude > 0)
