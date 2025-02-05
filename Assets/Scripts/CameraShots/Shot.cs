@@ -11,8 +11,16 @@ public class Shot : MonoBehaviour
 
     void Start()
     {
-        this.player = GameObject.FindWithTag("Player").GetComponent<Rigidbody>().transform;
-        this.playerMovement = player.GetComponent<PlayerMovement>();
+        if (!player)
+        {
+            player = GameObject.FindWithTag("Player").GetComponent<Rigidbody>().transform;
+        }
+
+        if (!playerMovement)
+        {
+            playerMovement = player.GetComponent<PlayerMovement>();
+        }
+
     }
 
     public void CutToShot()
