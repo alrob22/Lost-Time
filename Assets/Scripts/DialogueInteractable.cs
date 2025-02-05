@@ -10,11 +10,8 @@ public class DialoagueInteractable : Interactable
     
     public override void Interact()
     {
-        Debug.Log("Started Talking");
         if (!dialogueBox.talking) {
             base.Interact();
-
-            Debug.Log("This is working atm");
 
             dialogueBox.SetLines(lines);
             dialogueBox.StartDialogue();

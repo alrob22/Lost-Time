@@ -46,7 +46,6 @@ public class DialogueBox : MonoBehaviour
 
     public void SetLines(string[] newLines) {
         if (!talking) {
-                Debug.Log("Set lines to something new");
             if (!bottomPanel.activeSelf) {
                 bottomPanel.SetActive(true);
             }
@@ -58,7 +57,6 @@ public class DialogueBox : MonoBehaviour
     public void StartDialogue() {
         if (!talking) {
             talking = true;
-            Debug.Log("Starting new dialogue");
             if (!bottomPanel.activeSelf) {
                 bottomPanel.SetActive(true);
             }
@@ -69,7 +67,6 @@ public class DialogueBox : MonoBehaviour
     }
 
     void NextLine() {
-        Debug.Log("Proceeding to next line");
         if (index < lines.Length) {
             index++;
             textComponent.text = string.Empty;
