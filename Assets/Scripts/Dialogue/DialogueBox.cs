@@ -150,26 +150,26 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             //Don't do crap on startup
             string txt = null;
             var displayName = flowObject as IObjectWithDisplayName;
+            Debug.Log(displayName);
             if (displayName != null) {
-                Debug.Log(displayName.DisplayName);
                 //TODO: Display name
             }
             var frag = flowObject as DialogueFragment;
             if (frag != null) {
                 txt = frag.Text;
+                Debug.Log("React: " + ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).GetFeatureCutsceneInformation().CharReact);
                 //TODO: Speaker Portrait/Color?
-                Debug.Log("Text from DialogueFragment: " + txt);
             } else {
                 var text = flowObject as IObjectWithLocalizableText;
                 if (text != null) {
                     txt = text.Text;
-                    //Debug.Log("Text from IObjectWithText: " + txt);
+                    Debug.Log("Text from IObjectWithLocalizableText: " + txt);
                 }
             }
 
             if (!txt.IsNullOrEmpty()) {
                 //There is dialogue to load
-
+                
                 //If text is too long for the dialogue box
                 if (txt.Length > maxChars) {
                     string cur = "";
@@ -194,15 +194,14 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
                     }
                     lines.Add(cur);
 
-                    Debug.Log($"Fed the text box {lines.Count} lines: {String.Join("/", lines)}");
+                    //Debug.Log($"Fed the text box {lines.Count} lines: {String.Join("/", lines)}");
                     SetLines(lines.ToArray());
                 } else {
                     //Just feed it to the text box as-is
-                    Debug.Log($"Fed the text box whole line: {txt}");
+                    //Debug.Log($"Fed the text box whole line: {txt}");
                     string[] l = new string[1];
                     l[0] = txt;
                     SetLines(l);
-                    Debug.Log(lines[0]);
                 }
                 StartDialogue();
             } else {
@@ -218,7 +217,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     public void OnBranchesUpdated(IList<Branch> someBranches) {
         //TODO: Handle multiple branches
         if (someBranches.Count > 0) {
-            Debug.Log("Updating branches");
+            //Debug.Log("Updating branches");
             firstBranch = someBranches[0];
         }
     }
