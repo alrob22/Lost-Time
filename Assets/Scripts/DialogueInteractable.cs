@@ -13,7 +13,7 @@ public class DialoagueInteractable : Interactable
         if (!dialogueBox.talking) {
             base.Interact();
 
-            dialogueBox.SetLines(lines);
+            //dialogueBox.SetLines(lines);
             dialogueBox.StartDialogue();
         }
         
