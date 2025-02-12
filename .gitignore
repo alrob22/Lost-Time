@@ -74,4 +74,4 @@ crashlytics-build.properties
 
 # Articy Plugin
 # =====================================
-Assets/ArticyImporter/Content/Generated/
+Assets/ArticyImporter/Content/Generated/*
