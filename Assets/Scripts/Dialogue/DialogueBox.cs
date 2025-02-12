@@ -10,6 +10,7 @@ using Articy.Lost_Time_Demo;
 using Articy.Unity.Utils;
 using System.Xml.Linq;
 using System.Linq;
+using UnityEngine.UI;
 
 public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 {
@@ -20,21 +21,21 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     public string[] lines;
     
     [SerializeField]
-    float textSpeed; //Delay between each character being "typed" in textbox. Hook to the settings in future
-    [SerializeField]
     int maxChars = 50; //Maximum # of Characters that can fit in this text box
     int index = 0; //Very ugly hack
     IEnumerator lineTypingEffect;
 
     #region TextDisplayHandling
 
-    public bool talking = false, lineScrolling = false, start = true;
+    public bool talking = false;
+    bool lineScrolling = false, start = true;
     private bool pressBuffer = false;
     // Start is called before the first frame update
     void Start()
     {
         textComponent.text = string.Empty;
 
+        blinkCursor = bottomPanel.GetComponentInChildren<TextCursorAnimate>();
         bottomPanel.SetActive(false);
 
         if (lines == null) {
@@ -47,11 +48,16 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     // Update is called once per frame
     void Update()
     {
+        //Start the blinky continue cursor once we've hit the end of a line
+        if (!lineScrolling && !blinkCursor.Blinking && textComponent.text.Length == lines[index].Length) {
+            blinkCursor.startBlink(blinkCursorSpeed);
+        }
+
         if (talking && Input.GetAxisRaw("Submit") == 1f && !pressBuffer) {
             pressBuffer = true;
-            Debug.Log("hit spacebar"); 
             if (index < lines.Length && (textComponent.text == lines[index] || !lineScrolling)) {
                 NextLine();
+                blinkCursor.stopBlink();
             }
             else if (lineScrolling)
             {
@@ -65,7 +71,8 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
                 CloseDialogueBox();
             }
         } else if (Input.GetAxisRaw("Submit") != 1f) {
-            pressBuffer = false;
+            pressBuffer = false; //Hack input buffer to stop you from accidentally spamming through dialogue
+            //TODO: Replace with delay system that lets you just hold to button auto-progress dialogue
         }
     }
 
@@ -119,7 +126,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     void CloseDialogueBox() {
         textComponent.text = string.Empty;
         if (firstBranch != null) {
-            Debug.Log("Playing next branch");
+            //Debug.Log("Playing next branch");
             GetComponent<ArticyFlowPlayer>().Play(firstBranch);
         } else {
             bottomPanel.SetActive(false);
@@ -131,11 +138,22 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         }
     }
 
+    #endregion
+
+    #region Animations
+
+    [SerializeField]
+    float textCharacterDelay = 0.03f; //Delay between each character being "typed" in textbox. Hook to the settings in future
+    [SerializeField]
+    float blinkCursorSpeed = 0.75f; //Speed of cursor blinking
+
+    TextCursorAnimate blinkCursor; //Reference to blinky arrow for when you're done of the curent line
+
     IEnumerator TypeLine() {
         lineScrolling = true;
         foreach (char c in lines[index].ToCharArray()) {
             textComponent.text += c;
-            yield return new WaitForSeconds(textSpeed);
+            yield return new WaitForSeconds(textCharacterDelay);
         }
         lineTypingEffect = null;
         lineScrolling = false;
@@ -150,14 +168,13 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             //Don't do crap on startup
             string txt = null;
             var displayName = flowObject as IObjectWithDisplayName;
-            Debug.Log(displayName);
             if (displayName != null) {
                 //TODO: Display name
             }
             var frag = flowObject as DialogueFragment;
             if (frag != null) {
                 txt = frag.Text;
-                Debug.Log("React: " + ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).GetFeatureCutsceneInformation().CharReact);
+                //Debug.Log("React: " + ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).GetFeatureCutsceneInformation().CharReact);
                 //TODO: Speaker Portrait/Color?
             } else {
                 var text = flowObject as IObjectWithLocalizableText;

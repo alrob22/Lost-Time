@@ -12,7 +12,7 @@ public class PlayerInteraction : MonoBehaviour
         // Check if the player presses the interaction key
         if (Input.GetAxisRaw("Submit") == 1f)
         {
-            print("played");
+            //print("played");
             TryInteract();
         }
     }
