@@ -62,7 +62,7 @@ public class PlayerControllerOverworld : MonoBehaviour
         Vector3 move = new Vector3(horizontalMoveInput, 0, verticalMoveInput);
         move = transform.TransformDirection(move);
 
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.Tab))
         {
             speed = Mathf.Lerp(speed, sprintSpeed, sprintTransitSpeed * Time.deltaTime);
         } else
