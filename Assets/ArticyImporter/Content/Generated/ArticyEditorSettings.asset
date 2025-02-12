@@ -15,6 +15,14 @@ MonoBehaviour:
   mIsImporting: 0
   mAwaitingModelImport: 0
   mAwaitingFragmentsImport: 0
+<<<<<<< HEAD
+  mFileHashesKeys: []
+  mFileHashesValues: []
+  mScriptFragmentHashesKeys: 
+  mScriptFragmentHashesValues: []
+  mLastBuildCode: 0
+  mLastEditorStartupTimeTicks: 638749754387855537
+=======
   mFileHashesKeys:
   - script_methods.json
   - hierarchy.json
@@ -36,6 +44,7 @@ MonoBehaviour:
   - S/4GWTDoT/hs4lIsfjq50goxz5p4pMd2MEIHwTopjVo=
   mLastBuildCode: 1
   mLastEditorStartupTimeTicks: 638748874601392816
+>>>>>>> main
   mUseModelPickerHierarchyView: 0
   mNewVersionAvailable: 0
   mLastSelectedCustomGvPath: 
