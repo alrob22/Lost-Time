@@ -11,6 +11,7 @@ using Articy.Unity.Utils;
 using System.Xml.Linq;
 using System.Linq;
 using UnityEngine.UI;
+using UnityEngine.Android;
 
 public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 {
@@ -21,6 +22,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     private GameObject currentPanel;
     private TextMeshProUGUI dialogueBox, characterNameBox;
+    private Image mainCharacterPortrait, otherCharacterPortrait;
     public string[] lines;
     
     [SerializeField]
@@ -144,6 +146,8 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     #region VisibleBoxHandling
 
+    private Color transparent = new Color(255, 255, 255, 0);
+
     void UpdateBoxReference(GameObject currentBox) {
         foreach (TextMeshProUGUI box in currentBox.GetComponentsInChildren<TextMeshProUGUI>()) {
             box.text = String.Empty;
@@ -151,10 +155,38 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             else if (box.gameObject.name.Equals("NameTextbox")) characterNameBox = box;
         }
         blinkCursor = currentBox.GetComponentInChildren<TextCursorAnimate>();
-        //TODO: Get Character Portraits
-
+        foreach (Image i in currentBox.GetComponentsInChildren<Image>()) {
+            if (i.gameObject.name.Equals("MainCharacter")) {
+                mainCharacterPortrait = i;
+                i.color = transparent;
+            } 
+            else if (i.gameObject.name.Equals("OtherCharacter")) {
+                otherCharacterPortrait = i;
+                i.color = transparent;
+            }
+        }
 
         currentPanel = currentBox;
+    }
+
+    void UpdateCharacterPortrait(string cn, string react) {
+        if (cn.Equals(CharacterNames.mainCharacterName)) {
+            mainCharacterSpeaking();
+        } else {
+            //TODO: Much better way of handling searching for character names - HashMap?
+            otherCharacterSpeaking();
+        }
+        //TODO: Handle Character Portraits/Reactions
+    }
+
+    void mainCharacterSpeaking() {
+        mainCharacterPortrait.color = Color.white;
+        otherCharacterPortrait.color = transparent;
+    }
+
+    void otherCharacterSpeaking() {
+        mainCharacterPortrait.color = transparent;
+        otherCharacterPortrait.color = Color.white;
     }
 
     #endregion
@@ -188,17 +220,16 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             string txt = null;
             var displayName = flowObject as IObjectWithDisplayName;
             if (displayName != null) {
-                //TODO: Display name
+                //Display names aren't a thing?
                 Debug.Log(displayName);
             }
             var frag = flowObject as DialogueFragment;
             if (frag != null) {
                 txt = frag.Text;
-                Debug.Log("React: " + ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).GetFeatureCutsceneInformation().CharReact);
-                Debug.Log("React: " + ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).Speaker.name);
                 characterNameBox.text = ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).Speaker.TechnicalName;
-                //TODO: Speaker Portrait/Color?
+                UpdateCharacterPortrait(ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).Speaker.TechnicalName, ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).GetFeatureCutsceneInformation().CharReact.ToString());
             } else {
+                //Currently Unused
                 var text = flowObject as IObjectWithLocalizableText;
                 if (text != null) {
                     txt = text.Text;
