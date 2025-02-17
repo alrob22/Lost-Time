@@ -17,7 +17,10 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     [SerializeField]
     private GameObject bottomPanel;
     [SerializeField]
-    private TextMeshProUGUI textComponent;
+    private GameObject topPanel;
+
+    private GameObject currentPanel;
+    private TextMeshProUGUI dialogueBox, characterNameBox;
     public string[] lines;
     
     [SerializeField]
@@ -25,17 +28,14 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     int index = 0; //Very ugly hack
     IEnumerator lineTypingEffect;
 
-    #region TextDisplayHandling
-
     public bool talking = false;
     bool lineScrolling = false, start = true;
     private bool pressBuffer = false;
+
     // Start is called before the first frame update
     void Start()
     {
-        textComponent.text = string.Empty;
-
-        blinkCursor = bottomPanel.GetComponentInChildren<TextCursorAnimate>();
+        UpdateBoxReference(bottomPanel);
         bottomPanel.SetActive(false);
 
         if (lines == null) {
@@ -49,13 +49,13 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     void Update()
     {
         //Start the blinky continue cursor once we've hit the end of a line
-        if (!lineScrolling && !blinkCursor.Blinking && textComponent.text.Length == lines[index].Length) {
+        if (!lineScrolling && !blinkCursor.Blinking && index < lines.Length && dialogueBox.text.Length == lines[index].Length) {
             blinkCursor.startBlink(blinkCursorSpeed);
         }
 
         if (talking && Input.GetAxisRaw("Submit") == 1f && !pressBuffer) {
             pressBuffer = true;
-            if (index < lines.Length && (textComponent.text == lines[index] || !lineScrolling)) {
+            if (index < lines.Length && (dialogueBox.text == lines[index] || !lineScrolling)) {
                 NextLine();
                 blinkCursor.stopBlink();
             }
@@ -63,7 +63,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             {
                 StopCoroutine(lineTypingEffect);
                 lineScrolling = false;
-                textComponent.text = lines[index];
+                dialogueBox.text = lines[index];
             }
             else
             {
@@ -75,6 +75,8 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             //TODO: Replace with delay system that lets you just hold to button auto-progress dialogue
         }
     }
+
+    #region TextDisplayHandling
 
     public void SetLines(string[] newLines) {
         //Are we currently talking?
@@ -115,7 +117,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     void NextLine() {
         index++;
         if (index < lines.Length && !lineScrolling) {
-            textComponent.text = string.Empty;
+            dialogueBox.text = string.Empty;
             lineTypingEffect = TypeLine();
             StartCoroutine(lineTypingEffect);
         } else {
@@ -124,18 +126,35 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     }
     
     void CloseDialogueBox() {
-        textComponent.text = string.Empty;
-        if (firstBranch != null) {
+        dialogueBox.text = string.Empty;
+        if (index <= lines.Length && branches != null) {
             //Debug.Log("Playing next branch");
-            GetComponent<ArticyFlowPlayer>().Play(firstBranch);
+            GetComponent<ArticyFlowPlayer>().Play(branches[0]); //TODO: Fix Hack
         } else {
-            bottomPanel.SetActive(false);
+            currentPanel.SetActive(false);
             talking = false;
             lineScrolling = false;
             if (lineTypingEffect != null)
                 StopCoroutine(lineTypingEffect);
             index = 0;
         }
+    }
+
+    #endregion
+
+    #region VisibleBoxHandling
+
+    void UpdateBoxReference(GameObject currentBox) {
+        foreach (TextMeshProUGUI box in currentBox.GetComponentsInChildren<TextMeshProUGUI>()) {
+            box.text = String.Empty;
+            if (box.gameObject.name.Equals("DialogueTextbox")) dialogueBox = box;
+            else if (box.gameObject.name.Equals("NameTextbox")) characterNameBox = box;
+        }
+        blinkCursor = currentBox.GetComponentInChildren<TextCursorAnimate>();
+        //TODO: Get Character Portraits
+
+
+        currentPanel = currentBox;
     }
 
     #endregion
@@ -152,7 +171,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     IEnumerator TypeLine() {
         lineScrolling = true;
         foreach (char c in lines[index].ToCharArray()) {
-            textComponent.text += c;
+            dialogueBox.text += c;
             yield return new WaitForSeconds(textCharacterDelay);
         }
         lineTypingEffect = null;
@@ -170,11 +189,14 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             var displayName = flowObject as IObjectWithDisplayName;
             if (displayName != null) {
                 //TODO: Display name
+                Debug.Log(displayName);
             }
             var frag = flowObject as DialogueFragment;
             if (frag != null) {
                 txt = frag.Text;
-                //Debug.Log("React: " + ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).GetFeatureCutsceneInformation().CharReact);
+                Debug.Log("React: " + ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).GetFeatureCutsceneInformation().CharReact);
+                Debug.Log("React: " + ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).Speaker.name);
+                characterNameBox.text = ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).Speaker.TechnicalName;
                 //TODO: Speaker Portrait/Color?
             } else {
                 var text = flowObject as IObjectWithLocalizableText;
@@ -229,13 +251,15 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     }
 
     // Hack where we just pick the first branch of every dialogue
-    private Branch firstBranch;
+    private IList<Branch> branches;
 
     public void OnBranchesUpdated(IList<Branch> someBranches) {
         //TODO: Handle multiple branches
         if (someBranches.Count > 0) {
             //Debug.Log("Updating branches");
-            firstBranch = someBranches[0];
+            branches = someBranches;
+        } else {
+            branches = null;
         }
     }
 
