@@ -7,6 +7,10 @@ Shader "Custom/CurvedWorld" {
         _MainTex ("Base (RGB)", 2D) = "white" {}
         // Degree of curvature
         _Curvature ("Curvature", Float) = 0.001
+        // Render Mode selector: 0 = Opaque, 1 = Cutout, 2 = Transparent
+        _RenderMode ("Render Mode (0: Opaque, 1: Cutout)", Float) = 0
+        // Alpha cutoff value for Cutout mode
+        _Cutoff ("Alpha Cutoff", Range(0,1)) = 0.5
     }
     SubShader {
         Tags { "RenderType"="Opaque" }
@@ -16,10 +20,15 @@ Shader "Custom/CurvedWorld" {
         // Surface shader function is called surf, and vertex preprocessor function is called vert
         // addshadow used to add shadow collector and caster passes following vertex modification
         #pragma surface surf Lambert vertex:vert addshadow
+        // These allow the shader to enable specific blocks of code for different render modes
+        // #pragma shader_feature _RENDERMODE_CUTOUT
+        // #pragma shader_feature _RENDERMODE_TRANSPARENT
  
         // Access the shaderlab properties
         uniform sampler2D _MainTex;
         uniform float _Curvature;
+        uniform float _RenderMode;
+        uniform float _Cutoff;
  
         // Basic input structure to the shader function
         // requires only a single set of UV texture mapping coordinates
@@ -50,6 +59,12 @@ Shader "Custom/CurvedWorld" {
             half4 c = tex2D (_MainTex, IN.uv_MainTex);
             o.Albedo = c.rgb;
             o.Alpha = c.a;
+
+            // If _RenderMode is set to 1 (approximately), use clip() to discard fragments 
+            // whose alpha is below the _Cutoff value.
+            if (_RenderMode > 0.5 && _RenderMode < 1.5) {
+                clip(o.Alpha - _Cutoff);
+            }
         }
         ENDCG
     }
