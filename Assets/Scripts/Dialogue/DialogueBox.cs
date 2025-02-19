@@ -12,6 +12,7 @@ using System.Xml.Linq;
 using System.Linq;
 using UnityEngine.UI;
 using UnityEngine.Android;
+using UnityEngine.Scripting;
 
 public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 {
@@ -170,6 +171,10 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     }
 
     void UpdateCharacterPortrait(string characterName, string react) {
+        if (react.Equals("Nuetral")) {
+            react = "Neutral"; //TODO: Annoy the crap out of the writing people until this is changed
+        }
+
         if (characterName.Equals(CharacterNames.mainCharacterName)) {
             mainCharacterSpeaking(react);
         } else {
@@ -303,6 +308,9 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         if (someBranches.Count > 0) {
             //Debug.Log("Updating branches");
             branches = someBranches;
+            foreach (Branch b in branches) {
+                Debug.Log(b);
+            }
         } else {
             branches = null;
         }
