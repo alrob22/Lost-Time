@@ -169,24 +169,37 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         currentPanel = currentBox;
     }
 
-    void UpdateCharacterPortrait(string cn, string react) {
-        if (cn.Equals(CharacterNames.mainCharacterName)) {
-            mainCharacterSpeaking();
+    void UpdateCharacterPortrait(string characterName, string react) {
+        if (characterName.Equals(CharacterNames.mainCharacterName)) {
+            mainCharacterSpeaking(react);
         } else {
-            //TODO: Much better way of handling searching for character names - HashMap?
-            otherCharacterSpeaking();
+            otherCharacterSpeaking(CharacterNames.bakerCharacterName//characterName
+            , react);
         }
-        //TODO: Handle Character Portraits/Reactions
     }
 
-    void mainCharacterSpeaking() {
+    void mainCharacterSpeaking(string react) {
         mainCharacterPortrait.color = Color.white;
         otherCharacterPortrait.color = transparent;
+        //TODO: Get an actual main character name
+        //loadCharacterPortrait(mainCharacterPortrait, CharacterNames.mainCharacterName, react);
     }
 
-    void otherCharacterSpeaking() {
+    void otherCharacterSpeaking(string cn, string react) {
         mainCharacterPortrait.color = transparent;
         otherCharacterPortrait.color = Color.white;
+
+        loadCharacterPortrait(otherCharacterPortrait, cn, react);
+    }
+
+    void loadCharacterPortrait(Image portrait, string cn, string react) {
+        Sprite face = Resources.Load<Sprite>($"{cn.Replace("_","")}/{cn+react}");
+        Debug.Log(face);
+        if (face != null) {
+            portrait.sprite = face;
+        } else {
+            Debug.Log($"Could not load character's face: {cn+react} @ {cn.Replace("_","")}/{cn+react}");
+        }
     }
 
     #endregion
@@ -228,6 +241,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
                 txt = frag.Text;
                 characterNameBox.text = ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).Speaker.TechnicalName;
                 UpdateCharacterPortrait(ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).Speaker.TechnicalName, ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).GetFeatureCutsceneInformation().CharReact.ToString());
+                //Debug.Log(ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).Speaker.TechnicalName);
             } else {
                 //Currently Unused
                 var text = flowObject as IObjectWithLocalizableText;
