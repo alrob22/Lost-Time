@@ -309,7 +309,8 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             //Debug.Log("Updating branches");
             branches = someBranches;
             foreach (Branch b in branches) {
-                Debug.Log(b);
+                Debug.Log(b.Target.ToString());
+                //Debug.Log($"{b.ToString()},id:{b.BranchId},defaultDescript:{b.DefaultDescription},fallback:{b.IsFallback},valid:{b.IsValid},originpinid:{b.OriginPinId},path:{b.Path},target:{b.Target}");
             }
         } else {
             branches = null;
