@@ -1203,7 +1203,7 @@ MonoBehaviour:
   lines:
   - These are the lines in case of an error
   - you shouldn't be seeing these
-  maxChars: 50
+  maxChars: 260
   talking: 0
   textCharacterDelay: 0.03
   blinkCursorSpeed: 0.75

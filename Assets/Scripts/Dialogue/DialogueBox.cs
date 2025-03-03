@@ -4,15 +4,10 @@ using UnityEngine;
 using Articy.Unity;
 using TMPro;
 using System;
-using System.ComponentModel;
 using Articy.Unity.Interfaces;
 using Articy.Lost_Time_Demo;
 using Articy.Unity.Utils;
-using System.Xml.Linq;
-using System.Linq;
 using UnityEngine.UI;
-using UnityEngine.Android;
-using UnityEngine.Scripting;
 
 public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 {
@@ -199,13 +194,19 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     void loadCharacterPortrait(Image portrait, string cn, string react) {
         Sprite face = Resources.Load<Sprite>($"{cn.Replace("_","")}/{cn+react}");
-        Debug.Log(face);
+        //Debug.Log(face);
         if (face != null) {
             portrait.sprite = face;
         } else {
             Debug.Log($"Could not load character's face: {cn+react} @ {cn.Replace("_","")}/{cn+react}");
         }
     }
+
+    #endregion
+
+    #region SelectionUI
+
+
 
     #endregion
 
@@ -309,8 +310,12 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             //Debug.Log("Updating branches");
             branches = someBranches;
             foreach (Branch b in branches) {
-                Debug.Log(b.Target.ToString());
+                //Debug.Log(b.Target.ToString());
                 //Debug.Log($"{b.ToString()},id:{b.BranchId},defaultDescript:{b.DefaultDescription},fallback:{b.IsFallback},valid:{b.IsValid},originpinid:{b.OriginPinId},path:{b.Path},target:{b.Target}");
+            }
+
+            if (someBranches.Count > 1) {
+                Debug.Log("More than one option for dialgoue");
             }
         } else {
             branches = null;
