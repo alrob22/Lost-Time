@@ -26,6 +26,9 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     
     [SerializeField]
     int maxChars = 50; //Maximum # of Characters that can fit in this text box
+    [SerializeField]
+    float pressDelaySeconds = 0.25f;
+
     int index = 0; //Very ugly hack
     IEnumerator lineTypingEffect;
 
@@ -72,15 +75,20 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
                 Debug.Log("Nonstandard dialogue box closure");
                 CloseDialogueBox();
             }
+            Invoke("noPressBuffer", pressDelaySeconds); //Hack input buffer to stop you from accidentally spamming through dialogue
         } else if (Input.GetAxisRaw("Submit") != 1f) {
-            pressBuffer = false; //Hack input buffer to stop you from accidentally spamming through dialogue
-            //TODO: Replace with delay system that lets you just hold to button auto-progress dialogue
+            pressBuffer = false; //Additional way to get past the press buffer if the player REALLY wants to spam
         }
     }
 
     //Buffer inputs so we don't wind update in coversation by holding down the button too long
     private void notTalking() {
         talking = false;
+    }
+
+    //Buffer inputs, but for presses
+    private void noPressBuffer() {
+        pressBuffer = false; 
     }
 
     #region TextReadHandling
@@ -278,9 +286,9 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     void PlayNextBranch() {
         if (branches.Count > 1) {
             inputLock = true; //No reading input during selection
-            List<string> options = new List<string>();
+            IList<string> options = new List<string>();
 
-            List<Branch> newBranches = new List<Branch>(branches); //Remove invalid branches from the list, so PlaySelectedBranch() doesn't pick the wrong one
+            IList<Branch> newBranches = new List<Branch>(branches); //Remove invalid branches from the list, so PlaySelectedBranch() doesn't pick the wrong one
             foreach (Branch b in branches) {
                 if (b.IsValid) //Don't pass impossible branches for selection
                     options.Add(b.DefaultDescription);
