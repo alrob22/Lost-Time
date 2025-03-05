@@ -17,7 +17,7 @@ public class SelectorBox : MonoBehaviour
     int curSel = 0, selNum;
     Image curArrow;
     TextMeshProUGUI curText;
-    bool on = false, delay = true;
+    bool on = false, delay = true, press = false;
 
     public delegate void CallbackFunc(String selected); //Placeholder type so we can pass a selection handler to the dialogue box
     private CallbackFunc callbackFunc;
@@ -35,7 +35,7 @@ public class SelectorBox : MonoBehaviour
     {
         if (on) {
             float i = Input.GetAxis("Vertical");
-            if (Input.GetAxisRaw("Submit") == 1f) {
+            if (press && Input.GetAxisRaw("Submit") == 1f) {
                 //TODO: nice animation
                 //Debug.Log("Chose something");
                 hide();
@@ -49,6 +49,10 @@ public class SelectorBox : MonoBehaviour
                 updateCurrent();
             } else if (delay && i == 0) {
                 delay = false;
+            }
+
+            if (Input.GetAxisRaw("Submit") < 0.5f) {
+                press = true; //Hack to stop the system from immediately selecting an option if the select button is held down
             }
         }
     }
@@ -103,6 +107,9 @@ public class SelectorBox : MonoBehaviour
         }
 
         on = false;
+        delay = false;
+        press = false;
+        
         callbackFunc(s);
     }
 

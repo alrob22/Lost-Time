@@ -31,7 +31,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     public bool talking = false;
     bool lineScrolling = false, start = true;
-    private bool pressBuffer = false;
+    private bool pressBuffer = false, inputLock = false;
 
     // Start is called before the first frame update
     void Start()
@@ -54,7 +54,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             blinkCursor.startBlink(blinkCursorSpeed);
         }
 
-        if (talking && Input.GetAxisRaw("Submit") == 1f && !pressBuffer) {
+        if (talking && !inputLock && Input.GetAxisRaw("Submit") == 1f && !pressBuffer) {
             pressBuffer = true;
             if (index < lines.Length && (dialogueBox.text == lines[index] || !lineScrolling)) {
                 NextLine();
@@ -126,11 +126,11 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         }
     }
     
-    void CloseDialogueBox() {
+    void CloseDialogueBox(bool deadEnd = false) {
         dialogueBox.text = string.Empty;
-        if (index <= lines.Length && (branches != null || branches.Count != 0)) {
+        if (!deadEnd && index <= lines.Length && branches != null && branches.Count > 0) {
             //Debug.Log("Playing next branch");
-            testFunc();
+            testFunc(); // Hacked in multiple-select test
             //GetComponent<ArticyFlowPlayer>().Play(branches[0]); //TODO: Fix Hack
         } else {
             currentPanel.SetActive(false);
@@ -212,14 +212,14 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     #region SelectionUI
 
     void testFunc() {
-        pressBuffer = true; //Stop advancing dialogue during the test
-        string[] testOptions = new string[] {"one", "2", "tres", "IV"};
+        inputLock = true; //Stop advancing dialogue during the test
+        string[] testOptions = new string[] {"one", "2"};//, "tres", "IV"};
         dialogueSelector.Setup(testOptions, testFuncCallback);
     }
 
     void testFuncCallback(string s) {
-        pressBuffer = false; //Dialogue can start again now
-        index = lines.Length; //Don't play a line of dialogue
+        inputLock = false; //Dialogue can start again now
+        //index = lines.Length; //Don't play a line of dialogue
         Debug.Log(s);
         GetComponent<ArticyFlowPlayer>().Play(branches[0]); //TODO: Fix Hack
     }
@@ -250,7 +250,10 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     #region ArticyHandling
 
     public void OnFlowPlayerPaused(IFlowObject flowObject) {
-        if (!start) {
+        if (flowObject == null) {
+            Debug.Log("Dead End!");
+            CloseDialogueBox(true);
+        } else if (!start) {
             //Don't do crap on startup
             string txt = null;
             var displayName = flowObject as IObjectWithDisplayName;
@@ -271,6 +274,10 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
                     txt = text.Text;
                     Debug.Log("Text from IObjectWithLocalizableText: " + txt);
                 }
+            }
+            var textHaver = flowObject as IObjectWithMenuText;
+            if (textHaver != null) {
+                Debug.Log($"Menu Text: {textHaver.MenuText.ToString()}");
             }
 
             if (!txt.IsNullOrEmpty()) {
