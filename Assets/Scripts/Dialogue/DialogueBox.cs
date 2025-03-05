@@ -76,7 +76,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         }
     }
 
-    #region TextDisplayHandling
+    #region TextReadHandling
 
     public void SetLines(string[] newLines) {
         //Are we currently talking?
@@ -142,7 +142,13 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     #endregion
 
-    #region VisibleBoxHandling
+    #region SelectNonObscuringBox
+
+    
+
+    #endregion
+
+    #region VisibleUIHandling
 
     private Color transparent = new Color(255, 255, 255, 0);
 
@@ -207,8 +213,10 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     #endregion
 
-    #region SelectionUI
+    #region BranchSelectionAndUI
 
+    //Absolute hack to test the UI itself
+    /**
     void testFunc() {
         inputLock = true; //Stop advancing dialogue during the test
         string[] testOptions = new string[] {"one", "2"};//, "tres", "IV"};
@@ -221,6 +229,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         Debug.Log(i);
         GetComponent<ArticyFlowPlayer>().Play(branches[0]); //TODO: Fix Hack
     }
+    */
 
     void PlayNextBranch() {
         if (branches.Count > 1) {
@@ -231,9 +240,9 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
                     options.Add(b.DefaultDescription);
             }
 
-            dialogueSelector.Setup(options, PlaySelectedBranch);
+            dialogueSelector.Setup(options, PlaySelectedBranch); //Pass the dialogue options 
         } else {
-            GetComponent<ArticyFlowPlayer>().Play(branches[0]);
+            GetComponent<ArticyFlowPlayer>().Play(branches[0]); //If there's only one branch, we follow it
         }
     }
 
@@ -269,7 +278,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     public void OnFlowPlayerPaused(IFlowObject flowObject) {
         if (flowObject == null) {
-            Debug.Log("Dead End!");
+            //Debug.Log("Dead End!");
             CloseDialogueBox(true);
         } else if (!start) {
             //Don't do crap on startup
@@ -293,10 +302,14 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
                     Debug.Log("Text from IObjectWithLocalizableText: " + txt);
                 }
             }
+            
+            // I think we can get this text directly from the Branches themselves, which is when we would need it.
+            /**
             var textHaver = flowObject as IObjectWithMenuText;
             if (textHaver != null && !textHaver.MenuText.Value.IsNullOrEmpty()) {
                 Debug.Log($"Menu Text: {textHaver.MenuText.Value}");
             }
+            */
 
             if (!txt.IsNullOrEmpty()) {
                 //There is dialogue to load
