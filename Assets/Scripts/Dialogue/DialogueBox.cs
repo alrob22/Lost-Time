@@ -220,7 +220,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     void UpdateCharacterPortrait(string characterName, string react) {
         if (react.Equals("Nuetral")) {
-            react = "Neutral"; //TODO: Annoy the crap out of the writing people until this is changed
+            react = "Neutral";
         }
 
         if (characterName.Equals(CharacterNames.mainCharacterName)) {
@@ -259,7 +259,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     #region BranchSelectionAndUI
 
-    //Absolute hack to test the UI itself
+    //Absolute hack to test the selection UI itself
     /**
     void testFunc() {
         inputLock = true; //Stop advancing dialogue during the test
@@ -271,7 +271,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         inputLock = false; //Dialogue can start again now
         //index = lines.Length; //Don't play a line of dialogue
         Debug.Log(i);
-        GetComponent<ArticyFlowPlayer>().Play(branches[0]); //TODO: Fix Hack
+        GetComponent<ArticyFlowPlayer>().Play(branches[0]);
     }
     */
 
@@ -279,10 +279,16 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         if (branches.Count > 1) {
             inputLock = true; //No reading input during selection
             List<string> options = new List<string>();
+
+            List<Branch> newBranches = new List<Branch>(branches); //Remove invalid branches from the list, so PlaySelectedBranch() doesn't pick the wrong one
             foreach (Branch b in branches) {
-                if (b.IsValid) //Don't select impossible branches
+                if (b.IsValid) //Don't pass impossible branches for selection
                     options.Add(b.DefaultDescription);
+                else
+                    newBranches.Remove(b);
             }
+
+            branches = newBranches; //Can't remove from a structure you're looping over
 
             dialogueSelector.Setup(options, PlaySelectedBranch); //Pass the dialogue options 
         } else {
@@ -403,14 +409,8 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     private IList<Branch> branches;
 
     public void OnBranchesUpdated(IList<Branch> someBranches) {
-        //TODO: Handle multiple branches
         if (someBranches.Count > 0) {
-            //Debug.Log("Updating branches");
             branches = someBranches;
-            foreach (Branch b in branches) {
-                //Debug.Log(b.Target.ToString());
-                //Debug.Log($"{b.ToString()},id:{b.BranchId},defaultDescript:{b.DefaultDescription},fallback:{b.IsFallback},valid:{b.IsValid},originpinid:{b.OriginPinId},path:{b.Path},target:{b.Target}");
-            }
         } else {
             branches = null;
         }
