@@ -1,5 +1,5 @@
 
 public class CharacterNames {
-    public static string mainCharacterName = "Ntt_54237103";
+    public static string mainCharacterName = "Irving Whitaker";
     public static string bakerCharacterName = "Eliza_Gresham_";
 }

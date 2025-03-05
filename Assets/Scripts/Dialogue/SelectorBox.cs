@@ -14,20 +14,20 @@ public class SelectorBox : MonoBehaviour
     [SerializeField]
     private float cutoff = 0.7f;
     Color oldTextColor;
-    GameObject[] selectors;
     int curSel = 0, selNum;
     Image curArrow;
     TextMeshProUGUI curText;
-    bool on = false;
+    bool on = false, delay = true;
 
-    delegate void CallbackFunc(String selected);
+    public delegate void CallbackFunc(String selected); //Placeholder type so we can pass a selection handler to the dialogue box
     private CallbackFunc callbackFunc;
 
     // Start is called before the first frame update
     void Start()
     {
-        selectors = gameObject.GetComponentsInChildren<GameObject>();
-
+        for(int i = 0; i < transform.childCount; i++) {
+            transform.GetChild(i).gameObject.SetActive(false);
+        }
     }
 
     // Update is called once per frame
@@ -35,65 +35,82 @@ public class SelectorBox : MonoBehaviour
     {
         if (on) {
             float i = Input.GetAxis("Vertical");
-            if (Input.GetButtonUp("Fire1")) {
+            if (Input.GetAxisRaw("Submit") == 1f) {
                 //TODO: nice animation
+                //Debug.Log("Chose something");
                 hide();
-            } else if (i > cutoff) {
-                curSel--;
+            } else if (!delay && i > cutoff) {
+                //Debug.Log("Pressed up on the keyboard");
+                curSel = constrain(curSel-1);
                 updateCurrent();
-            } else if (i < -cutoff) {
-                curSel++;
+            } else if (!delay && i < -cutoff) {
+                //Debug.Log("Pressed down on the keyboard");
+                curSel = constrain(curSel+1);
                 updateCurrent();
+            } else if (delay && i == 0) {
+                delay = false;
             }
         }
     }
 
-    void setup(IList<String> branches, CallbackFunc func) {
+    public void Setup(IList<String> branches, CallbackFunc func) {
         on = true;
         int i = 0;
         selNum = branches.Count;
         foreach (String s in branches) {
-            if (i < 4) {
-                if (!selectors[i].activeSelf) {
-                    selectors[i].SetActive(true);
+            if (i < transform.childCount) {
+                if (!transform.GetChild(i).gameObject.activeSelf) {
+                    transform.GetChild(i).gameObject.SetActive(true);
                 }
-                selectors[i].GetComponentInChildren<TextMeshProUGUI>().text = s;
+                transform.GetChild(i).gameObject.GetComponentInChildren<TextMeshProUGUI>().text = s;
                 i++;
             }
         }
-        for (;i < selectors.Length; i++) {
-            selectors[i].SetActive(false);
+        for (;i < transform.childCount; i++) {
+            transform.GetChild(i).gameObject.SetActive(false);
         }
         curSel = 0;
+        updateCurrent();
 
         callbackFunc = func;
     }
 
     void updateCurrent() {
-        curText.color = oldTextColor;
-        curArrow.color = Color.white;
+        delay = true;
+        Invoke("delayHack", 0.25f); //World's worst hack to add in an input delay
 
-        curText = selectors[curSel].GetComponentInChildren<TextMeshProUGUI>();
-        curArrow = selectors[curSel].GetComponentInChildren<Image>();
+        if (curText)
+            curText.color = oldTextColor;
+        if (curArrow)
+            curArrow.color = new Color(255, 255, 255, 0);
+
+        curText = transform.GetChild(curSel).gameObject.GetComponentInChildren<TextMeshProUGUI>();
+        curArrow = transform.GetChild(curSel).gameObject.GetComponentInChildren<Image>();
 
         oldTextColor = curText.color;
         curText.color = highlightColor;
+        curArrow.color = Color.white;
     }
 
     void hide() {
-        string s = selectors[curSel].GetComponentInChildren<TextMeshProUGUI>().text;
+        string s = transform.GetChild(curSel).gameObject.GetComponentInChildren<TextMeshProUGUI>().text;
 
         curText.color = oldTextColor;
-        curArrow.color = Color.white;
+        curArrow.color = new Color(255, 255, 255, 0); //Set arrow to transparent
 
-        foreach (GameObject g in selectors) {
-            if (g.activeSelf) g.SetActive(false);
+        for(int i = 0; i < transform.childCount; i++) {
+            if (transform.GetChild(i).gameObject.activeSelf) transform.GetChild(i).gameObject.SetActive(false);
         }
 
+        on = false;
         callbackFunc(s);
     }
 
     private int constrain(int i) {
-        return (i + 4) % 4;
+        return (i + selNum) % selNum;
+    }
+
+    void delayHack() {
+        delay = false;
     }
 }

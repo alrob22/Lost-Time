@@ -11,6 +11,8 @@ using UnityEngine.UI;
 
 public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 {
+    const string MAIN_CHARACTER_NAME = "Irving Whitaker";
+
     [SerializeField]
     private GameObject bottomPanel;
     [SerializeField]
@@ -19,6 +21,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     private GameObject currentPanel;
     private TextMeshProUGUI dialogueBox, characterNameBox;
     private Image mainCharacterPortrait, otherCharacterPortrait;
+    private SelectorBox dialogueSelector;
     public string[] lines;
     
     [SerializeField]
@@ -125,9 +128,10 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     
     void CloseDialogueBox() {
         dialogueBox.text = string.Empty;
-        if (index <= lines.Length && branches != null) {
+        if (index <= lines.Length && (branches != null || branches.Count != 0)) {
             //Debug.Log("Playing next branch");
-            GetComponent<ArticyFlowPlayer>().Play(branches[0]); //TODO: Fix Hack
+            testFunc();
+            //GetComponent<ArticyFlowPlayer>().Play(branches[0]); //TODO: Fix Hack
         } else {
             currentPanel.SetActive(false);
             talking = false;
@@ -162,6 +166,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             }
         }
 
+        dialogueSelector = currentBox.GetComponentInChildren<SelectorBox>();
         currentPanel = currentBox;
     }
 
@@ -173,7 +178,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         if (characterName.Equals(CharacterNames.mainCharacterName)) {
             mainCharacterSpeaking(react);
         } else {
-            otherCharacterSpeaking(CharacterNames.bakerCharacterName//characterName
+            otherCharacterSpeaking(CharacterNames.bakerCharacterName
             , react);
         }
     }
@@ -193,12 +198,12 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     }
 
     void loadCharacterPortrait(Image portrait, string cn, string react) {
-        Sprite face = Resources.Load<Sprite>($"{cn.Replace("_","")}/{cn+react}");
+        Sprite face = Resources.Load<Sprite>($"{cn.Replace("_","").Replace(" ","")}/{cn+react}");
         //Debug.Log(face);
         if (face != null) {
             portrait.sprite = face;
         } else {
-            Debug.Log($"Could not load character's face: {cn+react} @ {cn.Replace("_","")}/{cn+react}");
+            Debug.Log($"Could not load character's face: {cn+react} @ {cn.Replace("_","").Replace(" ", "")}/{cn+react}");
         }
     }
 
@@ -206,7 +211,18 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     #region SelectionUI
 
+    void testFunc() {
+        pressBuffer = true; //Stop advancing dialogue during the test
+        string[] testOptions = new string[] {"one", "2", "tres", "IV"};
+        dialogueSelector.Setup(testOptions, testFuncCallback);
+    }
 
+    void testFuncCallback(string s) {
+        pressBuffer = false; //Dialogue can start again now
+        index = lines.Length; //Don't play a line of dialogue
+        Debug.Log(s);
+        GetComponent<ArticyFlowPlayer>().Play(branches[0]); //TODO: Fix Hack
+    }
 
     #endregion
 
