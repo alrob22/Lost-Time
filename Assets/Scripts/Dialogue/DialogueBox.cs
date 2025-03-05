@@ -98,7 +98,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             List<string> temp = new List<string>(currentDialogueLines);
             temp.AddRange(newLines);
             currentDialogueLines = temp.ToArray();
-            Debug.Log($"Switcheroo: {currentDialogueLines[currentDialogueLines.Length - 1]}");
+            //Debug.Log($"Switcheroo: {currentDialogueLines[currentDialogueLines.Length - 1]}");
         }
     }
 
@@ -156,7 +156,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     void SelectNonBlockingDiaglouegBox() {
         Rect playerScreenBounds = getScreenspaceBoundingBox(GameObject.FindGameObjectWithTag("Player"));
 
-        Debug.Log($"playerBounds: {playerScreenBounds}, top: {screenspaceOverlap(topDialogueBox, playerScreenBounds)}, bottom: {screenspaceOverlap(bottomDialogueBox, playerScreenBounds)}");
+        //Debug.Log($"playerBounds: {playerScreenBounds}, top: {screenspaceOverlap(topDialogueBox, playerScreenBounds)}, bottom: {screenspaceOverlap(bottomDialogueBox, playerScreenBounds)}");
 
         if (!screenspaceOverlap(topDialogueBox, playerScreenBounds) && screenspaceOverlap(bottomDialogueBox, playerScreenBounds)) {
             //When only the top is not overlapping, use it as the dialogue box
@@ -170,7 +170,8 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     //Quick & dirty way of getting screenspace coordinates from a bounding box
     private Rect getScreenspaceBoundingBox(GameObject gameObject) 
     {
-        Debug.Log($"Finding bounds for: {gameObject.name}, using camera {Camera.main.name}, min {gameObject.GetComponent<Collider>().bounds.min} max {gameObject.GetComponent<Collider>().bounds.max}");
+        //Debug.Log($"Finding bounds for: {gameObject.name}, using camera {Camera.main.name}, min {gameObject.GetComponent<Collider>().bounds.min} max {gameObject.GetComponent<Collider>().bounds.max}");
+
         //Convert the extreme bounds of the given objects bounding box to screen space
         // (ignoring possible issues with getting, say, 2 points which happen to be on a line from the cammera atm)
         Vector3 min = Camera.main.WorldToScreenPoint(gameObject.GetComponent<Collider>().bounds.min);
@@ -184,7 +185,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         //Convert UI object to Rect - built-in recttransform only works if both object have the same parent (obviously not comparing against non-UI objects)
         Rect uiBounds = new Rect(uiObject.GetComponent<RectTransform>().position.x, uiObject.GetComponent<RectTransform>().position.y, uiObject.GetComponent<RectTransform>().rect.width, uiObject.GetComponent<RectTransform>().rect.height);
 
-        Debug.Log($"object {uiObject.name} bounds {uiBounds}");
+        //Debug.Log($"object {uiObject.name} bounds {uiBounds}");
 
         return uiBounds.Overlaps(targetBoundingBox);
     }
