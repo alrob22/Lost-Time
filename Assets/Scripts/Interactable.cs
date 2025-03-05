@@ -5,10 +5,10 @@ using UnityEngine;
 public class Interactable : MonoBehaviour
 {
     float radius = 3f;
-    public void Interact()
+    virtual public void Interact()
     {
         // This is where you define what happens when the player interacts with the object
-        Debug.Log("Interacted with " + gameObject.name);
+        //Debug.Log("Interacted with " + gameObject.name);
 
         // Example: Change the object's color
         GetComponent<Renderer>().material.color = Color.green;
