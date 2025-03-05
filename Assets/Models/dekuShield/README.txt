@@ -1,0 +1,1 @@
+Thanks for downloading this model! This model is the Hi-Poly model from object_link_child.zobj, and is not to be confused with the Hi-Poly Get Item (Or GI) model. No permission is needed to use this model. - Zeldaboy14: Owner of ZPW
