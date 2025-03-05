@@ -19,7 +19,7 @@ public class SelectorBox : MonoBehaviour
     TextMeshProUGUI curText;
     bool on = false, delay = true, press = false;
 
-    public delegate void CallbackFunc(String selected); //Placeholder type so we can pass a selection handler to the dialogue box
+    public delegate void CallbackFunc(int i); //Placeholder type so we can pass a selection handler to the dialogue box
     private CallbackFunc callbackFunc;
 
     // Start is called before the first frame update
@@ -97,8 +97,6 @@ public class SelectorBox : MonoBehaviour
     }
 
     void hide() {
-        string s = transform.GetChild(curSel).gameObject.GetComponentInChildren<TextMeshProUGUI>().text;
-
         curText.color = oldTextColor;
         curArrow.color = new Color(255, 255, 255, 0); //Set arrow to transparent
 
@@ -110,7 +108,7 @@ public class SelectorBox : MonoBehaviour
         delay = false;
         press = false;
         
-        callbackFunc(s);
+        callbackFunc(curSel);
     }
 
     private int constrain(int i) {

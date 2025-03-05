@@ -11,7 +11,6 @@ using UnityEngine.UI;
 
 public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 {
-    const string MAIN_CHARACTER_NAME = "Irving Whitaker";
 
     [SerializeField]
     private GameObject bottomPanel;
@@ -130,15 +129,14 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         dialogueBox.text = string.Empty;
         if (!deadEnd && index <= lines.Length && branches != null && branches.Count > 0) {
             //Debug.Log("Playing next branch");
-            testFunc(); // Hacked in multiple-select test
-            //GetComponent<ArticyFlowPlayer>().Play(branches[0]); //TODO: Fix Hack
+            PlayNextBranch();
         } else {
             currentPanel.SetActive(false);
             talking = false;
             lineScrolling = false;
             if (lineTypingEffect != null)
                 StopCoroutine(lineTypingEffect);
-            index = 0;
+            //index = 0;
         }
     }
 
@@ -217,11 +215,31 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         dialogueSelector.Setup(testOptions, testFuncCallback);
     }
 
-    void testFuncCallback(string s) {
+    void testFuncCallback(int i) {
         inputLock = false; //Dialogue can start again now
         //index = lines.Length; //Don't play a line of dialogue
-        Debug.Log(s);
+        Debug.Log(i);
         GetComponent<ArticyFlowPlayer>().Play(branches[0]); //TODO: Fix Hack
+    }
+
+    void PlayNextBranch() {
+        if (branches.Count > 1) {
+            inputLock = true; //No reading input during selection
+            List<string> options = new List<string>();
+            foreach (Branch b in branches) {
+                if (b.IsValid) //Don't select impossible branches
+                    options.Add(b.DefaultDescription);
+            }
+
+            dialogueSelector.Setup(options, PlaySelectedBranch);
+        } else {
+            GetComponent<ArticyFlowPlayer>().Play(branches[0]);
+        }
+    }
+
+    void PlaySelectedBranch(int i) {
+        inputLock = false; //Now we read input again
+        GetComponent<ArticyFlowPlayer>().Play(branches[i]);
     }
 
     #endregion
@@ -335,10 +353,6 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             foreach (Branch b in branches) {
                 //Debug.Log(b.Target.ToString());
                 //Debug.Log($"{b.ToString()},id:{b.BranchId},defaultDescript:{b.DefaultDescription},fallback:{b.IsFallback},valid:{b.IsValid},originpinid:{b.OriginPinId},path:{b.Path},target:{b.Target}");
-            }
-
-            if (someBranches.Count > 1) {
-                Debug.Log("More than one option for dialgoue");
             }
         } else {
             branches = null;
