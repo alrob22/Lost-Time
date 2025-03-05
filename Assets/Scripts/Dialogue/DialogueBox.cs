@@ -77,7 +77,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             }
             Invoke("noPressBuffer", pressDelaySeconds); //Hack input buffer to stop you from accidentally spamming through dialogue
         } else if (Input.GetAxisRaw("Submit") != 1f) {
-            pressBuffer = false; //Additional way to get past the press buffer if the player REALLY wants to spam
+            noPressBuffer();//Additional way to get past the press buffer if the player REALLY wants to spam
         }
     }
 
