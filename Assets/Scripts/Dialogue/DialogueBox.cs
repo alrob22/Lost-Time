@@ -276,8 +276,8 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
                 }
             }
             var textHaver = flowObject as IObjectWithMenuText;
-            if (textHaver != null) {
-                Debug.Log($"Menu Text: {textHaver.MenuText.ToString()}");
+            if (textHaver != null && !textHaver.MenuText.Value.IsNullOrEmpty()) {
+                Debug.Log($"Menu Text: {textHaver.MenuText.Value}");
             }
 
             if (!txt.IsNullOrEmpty()) {
