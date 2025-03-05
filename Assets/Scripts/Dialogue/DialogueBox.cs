@@ -8,20 +8,21 @@ using Articy.Unity.Interfaces;
 using Articy.Lost_Time_Demo;
 using Articy.Unity.Utils;
 using UnityEngine.UI;
+using Unity.VisualScripting;
 
 public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 {
 
     [SerializeField]
-    private GameObject bottomPanel;
+    private GameObject bottomDialogueBox;
     [SerializeField]
-    private GameObject topPanel;
+    private GameObject topDialogueBox;
 
-    private GameObject currentPanel;
-    private TextMeshProUGUI dialogueBox, characterNameBox;
+    private GameObject currentBox;
+    private TextMeshProUGUI dialogueTextBox, characterNameBox;
     private Image mainCharacterPortrait, otherCharacterPortrait;
     private SelectorBox dialogueSelector;
-    public string[] lines;
+    public string[] currentDialogueLines;
     
     [SerializeField]
     int maxChars = 50; //Maximum # of Characters that can fit in this text box
@@ -35,13 +36,14 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     // Start is called before the first frame update
     void Start()
     {
-        UpdateBoxReference(bottomPanel);
-        bottomPanel.SetActive(false);
+        bottomDialogueBox.SetActive(false);
+        topDialogueBox.SetActive(false);
+        UpdateBoxReference(bottomDialogueBox); //Shut up the random errors
 
-        if (lines == null) {
-            lines = new string[2];
-            lines[0] = "These are the lines in case of an error"; 
-            lines[1] = "you shouldn't be seeing these";
+        if (currentDialogueLines == null) {
+            currentDialogueLines = new string[2];
+            currentDialogueLines[0] = "These are the lines in case of an error"; 
+            currentDialogueLines[1] = "you shouldn't be seeing these";
         }
     }
 
@@ -49,13 +51,13 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     void Update()
     {
         //Start the blinky continue cursor once we've hit the end of a line
-        if (!lineScrolling && !blinkCursor.Blinking && index < lines.Length && dialogueBox.text.Length == lines[index].Length) {
+        if (!lineScrolling && !blinkCursor.Blinking && index < currentDialogueLines.Length && dialogueTextBox.text.Length == currentDialogueLines[index].Length) {
             blinkCursor.startBlink(blinkCursorSpeed);
         }
 
         if (talking && !inputLock && Input.GetAxisRaw("Submit") == 1f && !pressBuffer) {
             pressBuffer = true;
-            if (index < lines.Length && (dialogueBox.text == lines[index] || !lineScrolling)) {
+            if (index < currentDialogueLines.Length && (dialogueTextBox.text == currentDialogueLines[index] || !lineScrolling)) {
                 NextLine();
                 blinkCursor.stopBlink();
             }
@@ -63,7 +65,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             {
                 StopCoroutine(lineTypingEffect);
                 lineScrolling = false;
-                dialogueBox.text = lines[index];
+                dialogueTextBox.text = currentDialogueLines[index];
             }
             else
             {
@@ -76,34 +78,40 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         }
     }
 
+    //Buffer inputs so we don't wind update in coversation by holding down the button too long
+    private void notTalking() {
+        talking = false;
+    }
+
     #region TextReadHandling
 
     public void SetLines(string[] newLines) {
         //Are we currently talking?
         if (!lineScrolling) {
-            if (!bottomPanel.activeSelf) {
-                bottomPanel.SetActive(true);
+            if (!currentBox.activeSelf) {
+                currentBox.SetActive(true);
             }
-            lines = newLines;
+            currentDialogueLines = newLines;
             index = 0;
         } else {
             //If so, add lines to the end of the current array by switching in place
-            List<string> temp = new List<string>(lines);
+            List<string> temp = new List<string>(currentDialogueLines);
             temp.AddRange(newLines);
-            lines = temp.ToArray();
-            Debug.Log($"Switcheroo: {lines[lines.Length - 1]}");
+            currentDialogueLines = temp.ToArray();
+            Debug.Log($"Switcheroo: {currentDialogueLines[currentDialogueLines.Length - 1]}");
         }
     }
 
     public void StartDialogue() {
-        //Start is a horrible hack to handle the empty starting node in the tree
+        //Start is a horrible hack to handle the empty starting node in the dialogue tree
         if (start) {
             start = false;
+            SelectNonBlockingDiaglouegBox();
             CloseDialogueBox();
         } else if (!talking) {
             talking = true;
-            if (!bottomPanel.activeSelf) {
-                bottomPanel.SetActive(true);
+            if (!currentBox.activeSelf) {
+                currentBox.SetActive(true);
             }
             index = 0;
             lineTypingEffect = TypeLine();
@@ -116,8 +124,8 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     void NextLine() {
         index++;
-        if (index < lines.Length && !lineScrolling) {
-            dialogueBox.text = string.Empty;
+        if (index < currentDialogueLines.Length && !lineScrolling) {
+            dialogueTextBox.text = string.Empty;
             lineTypingEffect = TypeLine();
             StartCoroutine(lineTypingEffect);
         } else {
@@ -126,13 +134,14 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     }
     
     void CloseDialogueBox(bool deadEnd = false) {
-        dialogueBox.text = string.Empty;
-        if (!deadEnd && index <= lines.Length && branches != null && branches.Count > 0) {
+        dialogueTextBox.text = string.Empty;
+        if (!deadEnd && index <= currentDialogueLines.Length && branches != null && branches.Count > 0) {
             //Debug.Log("Playing next branch");
             PlayNextBranch();
         } else {
-            currentPanel.SetActive(false);
-            talking = false;
+            start = true;
+            currentBox.SetActive(false);
+            Invoke("notTalking", 0.25f); // World's hackiest hack to buffer inputs to prevent chain conversations
             lineScrolling = false;
             if (lineTypingEffect != null)
                 StopCoroutine(lineTypingEffect);
@@ -144,7 +153,41 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     #region SelectNonObscuringBox
 
-    
+    void SelectNonBlockingDiaglouegBox() {
+        Rect playerScreenBounds = getScreenspaceBoundingBox(GameObject.FindGameObjectWithTag("Player"));
+
+        Debug.Log($"playerBounds: {playerScreenBounds}, top: {screenspaceOverlap(topDialogueBox, playerScreenBounds)}, bottom: {screenspaceOverlap(bottomDialogueBox, playerScreenBounds)}");
+
+        if (!screenspaceOverlap(topDialogueBox, playerScreenBounds) && screenspaceOverlap(bottomDialogueBox, playerScreenBounds)) {
+            //When only the top is not overlapping, use it as the dialogue box
+            UpdateBoxReference(topDialogueBox);
+        } else {
+            //Otherwise, be normal & use the bottom one
+            UpdateBoxReference(bottomDialogueBox);
+        }
+    }
+
+    //Quick & dirty way of getting screenspace coordinates from a bounding box
+    private Rect getScreenspaceBoundingBox(GameObject gameObject) 
+    {
+        Debug.Log($"Finding bounds for: {gameObject.name}, using camera {Camera.main.name}, min {gameObject.GetComponent<Collider>().bounds.min} max {gameObject.GetComponent<Collider>().bounds.max}");
+        //Convert the extreme bounds of the given objects bounding box to screen space
+        // (ignoring possible issues with getting, say, 2 points which happen to be on a line from the cammera atm)
+        Vector3 min = Camera.main.WorldToScreenPoint(gameObject.GetComponent<Collider>().bounds.min);
+        Vector3 max = Camera.main.WorldToScreenPoint(gameObject.GetComponent<Collider>().bounds.max);
+        //Throw up a bounding Rect from the min corner in screen space
+        return new Rect(new Vector2(Math.Min(min.x, max.x), Math.Min(min.y, max.y)), new Vector2(Math.Abs(max.x - min.x), Math.Abs(max.y - min.y)));
+    }
+
+    //checks the freshly-minted screenspace bounding box against the ui element given
+    private bool screenspaceOverlap(GameObject uiObject, Rect targetBoundingBox) {
+        //Convert UI object to Rect - built-in recttransform only works if both object have the same parent (obviously not comparing against non-UI objects)
+        Rect uiBounds = new Rect(uiObject.GetComponent<RectTransform>().position.x, uiObject.GetComponent<RectTransform>().position.y, uiObject.GetComponent<RectTransform>().rect.width, uiObject.GetComponent<RectTransform>().rect.height);
+
+        Debug.Log($"object {uiObject.name} bounds {uiBounds}");
+
+        return uiBounds.Overlaps(targetBoundingBox);
+    }
 
     #endregion
 
@@ -155,7 +198,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     void UpdateBoxReference(GameObject currentBox) {
         foreach (TextMeshProUGUI box in currentBox.GetComponentsInChildren<TextMeshProUGUI>()) {
             box.text = String.Empty;
-            if (box.gameObject.name.Equals("DialogueTextbox")) dialogueBox = box;
+            if (box.gameObject.name.Equals("DialogueTextbox")) dialogueTextBox = box;
             else if (box.gameObject.name.Equals("NameTextbox")) characterNameBox = box;
         }
         blinkCursor = currentBox.GetComponentInChildren<TextCursorAnimate>();
@@ -171,7 +214,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         }
 
         dialogueSelector = currentBox.GetComponentInChildren<SelectorBox>();
-        currentPanel = currentBox;
+        this.currentBox = currentBox;
     }
 
     void UpdateCharacterPortrait(string characterName, string react) {
@@ -264,8 +307,8 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     IEnumerator TypeLine() {
         lineScrolling = true;
-        foreach (char c in lines[index].ToCharArray()) {
-            dialogueBox.text += c;
+        foreach (char c in currentDialogueLines[index].ToCharArray()) {
+            dialogueTextBox.text += c;
             yield return new WaitForSeconds(textCharacterDelay);
         }
         lineTypingEffect = null;
