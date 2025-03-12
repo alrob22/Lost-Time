@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Aden/OverWorldTest-water.unity
+    guid: 9ac9a1d8df1764c4fbecb1cae76bd8eb
   m_configObjects: {}
