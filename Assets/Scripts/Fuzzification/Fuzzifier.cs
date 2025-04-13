@@ -5,7 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Unity.VisualScripting.FullSerializer;
+
+using UnityEngine;
+using Vector2 = System.Numerics.Vector2;
 
 public abstract class Fuzzifier {
 
@@ -30,7 +32,15 @@ public abstract class Fuzzifier {
     }
 
     public int hardCategorizeInput(float input) {
-        return (int) Math.Floor(findCategoryMembership(input).Max().X);
+        List<Vector2> membership = findCategoryMembership(input);
+        membership.Sort(delegate(Vector2 a, Vector2 b) {return Math.Sign(b.Y - a.Y);}); //Sort by value of highest belonging (Y)
+        
+        /**
+        string debug = "";
+        foreach (Vector2 v in membership) {debug += v.ToString();}
+        Debug.Log(debug);*/
+
+        return (int) Math.Floor(membership[0].X); //Return category value from X
     }
 
     private List<Vector2> findCategoryMembership(float input) {
@@ -38,11 +48,12 @@ public abstract class Fuzzifier {
 
         for (int category = 0; category < inputCategories.Count; category++) {
             //Point is within the x span of the category
-            if (inputCategories[category].Count > 0 && inputCategories[category][0].X < input && inputCategories[category][inputCategories[category].Count-1].X > input) {
-                
+            if (inputCategories[category].Count > 0 && inputCategories[category][0].X <= input && inputCategories[category][inputCategories[category].Count-1].X >= input) {
+                //Debug.Log("Point " + input + " was within span [" + inputCategories[category][0].X + "-" + inputCategories[category][inputCategories[category].Count-1].X + "]");
+
                 //Find the relevant line segment in the category
                 for (int lineSeg = 0; lineSeg < inputCategories[category].Count - 1; lineSeg++) {
-                    if (inputCategories[category][lineSeg].X < input & inputCategories[category][lineSeg+1].X > input) {
+                    if (inputCategories[category][lineSeg].X <= input & inputCategories[category][lineSeg+1].X >= input) {
                         //Found one, calculate resultant y value by linear interpolation
                         float result = ((inputCategories[category][lineSeg+1].Y - inputCategories[category][lineSeg].Y)/(inputCategories[category][lineSeg + 1].X - inputCategories[category][lineSeg].X)
                                         * (input - inputCategories[category][lineSeg].X) + inputCategories[category][lineSeg].Y);
@@ -52,6 +63,10 @@ public abstract class Fuzzifier {
                     }
                 }
             }
+        }
+
+        if (membership.Count == 0) {
+            Debug.Log("Internal Screaming");
         }
 
         return membership;
