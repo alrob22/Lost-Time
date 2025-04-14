@@ -7,7 +7,9 @@ using System.Linq;
 using System.Numerics;
 
 using UnityEngine;
+
 using Vector2 = System.Numerics.Vector2;
+using Random = System.Random;
 
 public abstract class Fuzzifier {
 
@@ -43,6 +45,24 @@ public abstract class Fuzzifier {
         return (int) Math.Floor(membership[0].X); //Return category value from X
     }
 
+    public int WeightedCategorizeInput(float input) {
+        List<Vector2> membership = findCategoryMembership(input);
+        membership.Sort(delegate(Vector2 a, Vector2 b) {return Math.Sign(b.Y - a.Y);}); //Sort by value of highest belonging (Y)
+        
+        Random rand = new Random();
+        double r = rand.NextDouble();
+        int i = 0;
+
+        for (float total = membership[i].Y; r > total; total += membership[i++].Y); //We don't need a body here
+
+        /**
+        string debug = "";
+        foreach (Vector2 v in membership) {debug += v.ToString();}
+        Debug.Log(debug);*/
+
+        return (int) Math.Floor(membership[i].X); //Return category value from X
+    }
+
     private List<Vector2> findCategoryMembership(float input) {
         List<Vector2> membership = new List<Vector2>();
 
@@ -63,10 +83,6 @@ public abstract class Fuzzifier {
                     }
                 }
             }
-        }
-
-        if (membership.Count == 0) {
-            Debug.Log("Internal Screaming");
         }
 
         return membership;

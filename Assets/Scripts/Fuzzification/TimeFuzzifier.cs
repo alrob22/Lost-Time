@@ -21,7 +21,7 @@ public class TimeFuzzifier : Fuzzifier {
     }
 
     public TimeCategories enumCategorizeInput(float input) {
-        return (TimeCategories) base.hardCategorizeInput(input);
+        return (TimeCategories) base.WeightedCategorizeInput(input);
     }
 
 }
