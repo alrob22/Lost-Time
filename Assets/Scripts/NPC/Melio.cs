@@ -25,7 +25,7 @@ public class Melio : MonoBehaviour
 
         switch (buildIndex)
         {
-            case 0:
+            case 1:
                 OverworldAnimation();
                 break;
             //case 1:
