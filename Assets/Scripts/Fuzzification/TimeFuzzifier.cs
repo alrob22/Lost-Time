@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Numerics;
 
 
-public enum timeCategories {
+public enum TimeCategories {
         veryLate,
         late,
         onTime,
@@ -20,8 +20,8 @@ public class TimeFuzzifier : Fuzzifier {
         }
     }
 
-    public timeCategories enumCategorizeInput(float input) {
-        return (timeCategories) base.hardCategorizeInput(input);
+    public TimeCategories enumCategorizeInput(float input) {
+        return (TimeCategories) base.WeightedCategorizeInput(input);
     }
 
 }
