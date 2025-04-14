@@ -45,9 +45,7 @@ public class GameManager : MonoBehaviour
         inGameTime += Time.deltaTime * timeMultiplier;
 
         // Convert the in-game time from seconds to hours, minutes, and seconds
-        int hours = Mathf.FloorToInt(inGameTime / 3600) % 24;
-        int minutes = Mathf.FloorToInt((inGameTime % 3600) / 60);
-        int seconds = Mathf.FloorToInt(inGameTime % 60);
+        timeHandler.UpdateTime(inGameTime);
 
         //Debug.Log(string.Format("{0:D2}:{1:D2}:{2:D2}", hours, minutes, seconds));
 
