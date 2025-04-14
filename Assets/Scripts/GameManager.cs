@@ -17,6 +17,11 @@ public class GameManager : MonoBehaviour
 
     public TextMeshProUGUI timeText;
 
+    //private Vector3[] townAHubPositionArray = new[] { new Vector3(-1.8f, 1.49f, -1.14f), 
+    //    new Vector3(0.65f, 1.5f, -1.14f), 
+    //    new Vector3(0.86f, 1.5f, -1.14f), 
+    //    new Vector3(0.65f, 1.5f, -1.14f) };
+
     void Awake()
     {
         // Ensure only one instance exists
