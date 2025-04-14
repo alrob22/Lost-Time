@@ -58,7 +58,7 @@ public abstract class Fuzzifier {
                         float result = ((inputCategories[category][lineSeg+1].Y - inputCategories[category][lineSeg].Y)/(inputCategories[category][lineSeg + 1].X - inputCategories[category][lineSeg].X)
                                         * (input - inputCategories[category][lineSeg].X) + inputCategories[category][lineSeg].Y);
 
-                        membership.Add(new Vector2(category, result)); //Add the current category & the level of belonging to the rmembership list
+                        membership.Add(new Vector2(category, result)); //Add the current category & the level of belonging to the membership list
                         break;
                     }
                 }
