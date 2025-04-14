@@ -1,14 +1,15 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
-using Articy.Unity;
+using UnityEngine.UI;
 using TMPro;
-using System;
+
+using Articy.Unity;
 using Articy.Unity.Interfaces;
 using Articy.Lost_Time_Demo;
 using Articy.Unity.Utils;
-using UnityEngine.UI;
-using Unity.VisualScripting;
 
 public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 {
