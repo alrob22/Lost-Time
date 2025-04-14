@@ -64,6 +64,8 @@ public abstract class Fuzzifier {
     }
 
     private List<Vector2> findCategoryMembership(float input) {
+        input = Mathf.Clamp(input, 0f, 1f); //Only allow input between 0 & 1
+        
         List<Vector2> membership = new List<Vector2>();
 
         for (int category = 0; category < inputCategories.Count; category++) {
