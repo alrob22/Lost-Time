@@ -6,6 +6,21 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Aden/OverWorldTest-water.unity
+    path: Assets/Scenes/Aden/OverWorld.unity
     guid: 9ac9a1d8df1764c4fbecb1cae76bd8eb
+  - enabled: 1
+    path: Assets/Scenes/Aden/TownA/TownAHub.unity
+    guid: f2b65ed8663e2a6439e91ab7d5b2016c
+  - enabled: 1
+    path: Assets/Scenes/Aden/TownA/TownABuildings/Bakery.unity
+    guid: 1e109b1dea7287747808917a4d970613
+  - enabled: 1
+    path: Assets/Scenes/Aden/TownA/TownABuildings/Blacksmith.unity
+    guid: 3aea871a573411d4ab700091a7c0bdd2
+  - enabled: 1
+    path: Assets/Scenes/Aden/TownA/TownABuildings/Farm.unity
+    guid: f33fef9b1772adb459c59921646751fa
+  - enabled: 1
+    path: Assets/Scenes/Aden/TownA/TownABuildings/Tavern.unity
+    guid: f8b01aae4f642a74cb7e88071abc477b
   m_configObjects: {}

@@ -2,11 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ShotTracker : MonoBehaviour
+public class LookAtPlayer : MonoBehaviour
 {
     private Transform player;
-    public Shot startingShot;
-    [SerializeField] private Shot prevShot;
 
     // Y rotation bounds
     public float leftBound = -9.119f; // Left side limit
@@ -15,8 +13,6 @@ public class ShotTracker : MonoBehaviour
     void Start()
     {
         player = GameObject.FindWithTag("Player").GetComponent<Rigidbody>().transform;
-        startingShot.CutToShot();
-        prevShot = startingShot;
     }
 
     void Update()
@@ -39,15 +35,5 @@ public class ShotTracker : MonoBehaviour
         {
             transform.rotation = desiredRotation;
         }
-    }
-
-    public Shot GetPrevShot()
-    {
-        return prevShot;
-    }
-
-    public void SetPrevShot(Shot newShot)
-    {
-        prevShot = newShot;
     }
 }
