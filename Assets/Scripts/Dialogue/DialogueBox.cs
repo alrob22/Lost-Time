@@ -299,6 +299,10 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
             branches = newBranches; //Can't remove from a structure you're looping over
 
+            if (branches.Count == 1) {
+                GetComponent<ArticyFlowPlayer>().Play(branches[0]); //If there's only one branch, we follow it
+            }
+
             dialogueSelector.Setup(options, PlaySelectedBranch); //Pass the dialogue options 
         } else {
             GetComponent<ArticyFlowPlayer>().Play(branches[0]); //If there's only one branch, we follow it
@@ -322,13 +326,20 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     TextCursorAnimate blinkCursor; //Reference to blinky arrow for when you're done of the curent line
 
     IEnumerator TypeLine() {
-        lineScrolling = true;
-        foreach (char c in currentDialogueLines[index].ToCharArray()) {
-            dialogueTextBox.text += c;
-            yield return new WaitForSeconds(textCharacterDelay);
+        //Sanity check: are we coming into an empty setup?
+        if (index >= 0 && index < currentDialogueLines.Length) {
+            lineScrolling = true;
+            foreach (char c in currentDialogueLines[index].ToCharArray()) {
+                dialogueTextBox.text += c;
+                yield return new WaitForSeconds(textCharacterDelay);
+            }
+            lineTypingEffect = null;
+            lineScrolling = false;
+        } else {
+            lineScrolling = true;
+            yield return new WaitForSeconds(textCharacterDelay); //If setup is empty, just wait a 'lil
+            lineScrolling = false;
         }
-        lineTypingEffect = null;
-        lineScrolling = false;
     }
 
     #endregion
@@ -337,6 +348,12 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     public void GetCharacterDialogue(string CharacterName) {
         //TODO: Actually Load Dialogue by NPC Name
+        StartDialogue();
+    }
+
+    // Absolute hack of a method to play a random Articy Hub reference, no matter what
+    public void PlayCharacterHubDangerous(Hub branchRef) {
+        GetComponent<ArticyFlowPlayer>().StartOn = branchRef;
         StartDialogue();
     }
 
@@ -420,10 +437,12 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
                 //Jump to next branch or close the dialogue box
                 CloseDialogueBox();
             }
+        } else if (false) {
+            //TODO: Handle if the starting branch is a hub
         }
     }
 
-    // Hack where we just pick the first branch of every dialogue
+    // Private list of branches, so we can iterate through them at our leisure
     private IList<Branch> branches;
 
     public void OnBranchesUpdated(IList<Branch> someBranches) {
