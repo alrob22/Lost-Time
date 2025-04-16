@@ -333,7 +333,16 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     #endregion
 
-    #region ArticyHandling
+    #region LoadDialogue
+
+    public void GetCharacterDialogue(string CharacterName) {
+        //TODO: Actually Load Dialogue by NPC Name
+        StartDialogue();
+    }
+
+    #endregion
+
+    #region ArticyFlowHandling
 
     public void OnFlowPlayerPaused(IFlowObject flowObject) {
         if (flowObject == null) {

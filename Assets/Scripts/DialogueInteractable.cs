@@ -5,16 +5,17 @@ using UnityEngine;
 public class DialoagueInteractable : Interactable
 {
 
-    public string[] lines;
     public DialogueBox dialogueBox;
+
+    [SerializeField]
+    private string CharacterName;
     
     public override void Interact()
     {
         if (!dialogueBox.talking) {
             base.Interact();
 
-            //dialogueBox.SetLines(lines);
-            dialogueBox.StartDialogue();
+            dialogueBox.GetCharacterDialogue(CharacterName);
         }
         
     }
