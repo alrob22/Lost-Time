@@ -52,10 +52,11 @@ public class GameManager : MonoBehaviour
         // Convert the in-game time from seconds to hours, minutes, and seconds
         timeHandler.UpdateTime(inGameTime);
 
+        //Debug.Log(string.Format("{0:D2}:{1:D2}:{2:D2}", hours, minutes, seconds));
+
         if (timeText != null)
         {
             timeText.text = string.Format("{0:D2}:{1:D2}", timeHandler.Hour, timeHandler.Minute);
-            Debug.Log(string.Format("{0:D2}:{1:D2}", timeHandler.Hour, timeHandler.Minute));
         }
     }
 }
