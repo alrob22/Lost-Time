@@ -320,6 +320,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ebony
       objectReference: {fileID: 0}
+    - target: {fileID: 2462643741866393028, guid: 2a0581b3231c9794292aeac68d5f2458, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -540,7 +544,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ed49a3cbf8e3bc45af5e415b227dc78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: Overworld
+  sceneName: Gate
 --- !u!65 &613106301
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1811,7 +1815,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.6677072, y: 1.1150112, z: 0.6380955}
-  m_LocalScale: {x: 0.60958, y: 1.0712732, z: 1.5037}
+  m_LocalScale: {x: 0.60958, y: 1.0712732, z: 4.501326}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 199504784}
