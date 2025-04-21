@@ -23,10 +23,10 @@ public class DialoagueInteractable : Interactable
         if (!dialogueBox.talking) {
             base.Interact();
             
-            if (UseDangerousRef && dangerousDialogueReference != null & dangerousDialogueReference.HasReference) {
-                dialogueBox.PlayCharacterHubDangerous(ArticyDatabase.GetObject<Hub>(dangerousDialogueReference.instanceId)); //Unsafe hack to play a dialogue branch
+            if (UseDangerousRef && dangerousDialogueReference != null && dangerousDialogueReference.HasReference) {
+                dialogueBox.PlayArticyRefDangerous(dangerousDialogueReference); //Unsafe hack to play a dialogue branch
             } else {
-                dialogueBox.GetCharacterDialogue(CharacterName); //Safe way to find a characters dialogue hub
+                dialogueBox.GetCharacterDialogue(CharacterName); //Sould be a safe way to find a characters dialogue hub
             }
         }
         
