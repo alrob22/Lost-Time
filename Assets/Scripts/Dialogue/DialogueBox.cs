@@ -10,6 +10,7 @@ using Articy.Unity;
 using Articy.Unity.Interfaces;
 using Articy.Lost_Time_Demo;
 using Articy.Unity.Utils;
+using System.Resources;
 
 public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 {
@@ -234,19 +235,21 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             react = "Neutral";
         }
 
-        if (characterName.Equals(CharacterNames.mainCharacterName)) {
+        if (characterName.Equals(CharacterNames.mainCharacterName) || characterName.Equals(CharacterNames.mainCharacterResourceName.Replace("_", ""))) {
             mainCharacterSpeaking(react);
         } else {
-            otherCharacterSpeaking(CharacterNames.bakerCharacterName
-            , react);
+            otherCharacterSpeaking(CharacterNames.FindFullName(characterName), react);
         }
     }
 
     void mainCharacterSpeaking(string react) {
         mainCharacterPortrait.color = Color.white;
         otherCharacterPortrait.color = transparent;
-        //TODO: Get an actual main character name
-        //loadCharacterPortrait(mainCharacterPortrait, CharacterNames.mainCharacterName, react);
+
+        if (react.Equals("Neutral")) react = react+Mathf.RoundToInt(UnityEngine.Random.value + 1).ToString(); //Hack to handle multiple possible expressions
+
+
+        loadCharacterPortrait(mainCharacterPortrait, CharacterNames.mainCharacterResourceName, react);
     }
 
     void otherCharacterSpeaking(string cn, string react) {
@@ -257,6 +260,9 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     }
 
     void loadCharacterPortrait(Image portrait, string cn, string react) {
+        if (!cn.Contains("_")) cn = cn.Replace(" ", "_");
+        if (cn[cn.Length-1] != '_') cn = cn + "_"; //Sanity checks for when we start getting proper names in Articy
+
         Sprite face = Resources.Load<Sprite>($"{cn.Replace("_","").Replace(" ","")}/{cn+react}");
         //Debug.Log(face);
         if (face != null) {
@@ -383,7 +389,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             var frag = flowObject as DialogueFragment;
             if (frag != null) {
                 txt = frag.Text;
-                characterNameBox.text = ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).Speaker.TechnicalName;
+                characterNameBox.text = CharacterNames.NiceDisplayName(ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).Speaker.TechnicalName); //Hack to display characters' full names
                 UpdateCharacterPortrait(ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).Speaker.TechnicalName, ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).GetFeatureCutsceneInformation().CharReact.ToString());
                 //Debug.Log(ArticyDatabase.GetObject<DialogueHelper>(frag.TechnicalName).Speaker.TechnicalName);
             } else {
