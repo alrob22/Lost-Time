@@ -30,7 +30,11 @@ public class TimeHandler {
     public TimeFuzzifier fuzzyTime;
 
     public TimeHandler() {
-        timeVariables = ArticyDatabase.GetAllOfType<TimeVaribles>()[0]; //Dirty hack to get the first timevariables item
+        if (ArticyDatabase.GetAllOfType<TimeVaribles>().Count > 0) { //VInitialization Safety Check
+                Debug.Log("Articy decided timeVaribles should exist, yay");
+                
+                timeVariables = ArticyDatabase.GetAllOfType<TimeVaribles>()[0]; //Dirty hack to get the first timevariables item
+            } else Debug.LogError("Articy decided timeVaribles shouldn't exist. Queue internal screaming."); 
     }
 
     // Convert the in-game time from seconds to hours, minutes, and seconds
