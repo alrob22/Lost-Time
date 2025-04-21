@@ -35,12 +35,14 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     IEnumerator lineTypingEffect;
 
     public bool talking = false;
-    bool lineScrolling = false, start = true;
+    bool lineScrolling = false, startDialogue = true, startScene;
     private bool pressBuffer = false, inputLock = false;
 
     // Start is called before the first frame update
     void Start()
     {
+        startScene = true; //Articy immediate procs FlowPlayer on scene startup, because it was written by clowns
+
         bottomDialogueBox.SetActive(false);
         topDialogueBox.SetActive(false);
         UpdateBoxReference(bottomDialogueBox); //Shut up the random errors
@@ -114,10 +116,10 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     public void StartDialogue() {
         //Start is a horrible hack to handle the empty starting node in the dialogue tree
-        if (start) {
-            start = false;
+        if (startDialogue) {
+            startDialogue = false;
             SelectNonBlockingDiaglouegBox();
-            CloseDialogueBox();
+            GetComponent<ArticyFlowPlayer>().Play(); //Start Playing Dialogue from where we have told the player to start
         } else if (!talking) {
             talking = true;
             if (!currentBox.activeSelf) {
@@ -149,7 +151,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             //Debug.Log("Playing next branch");
             PlayNextBranch();
         } else {
-            start = true;
+            startDialogue = true;
             currentBox.SetActive(false);
             Invoke("notTalking", 0.25f); // World's hackiest hack to buffer inputs to prevent chain conversations
             lineScrolling = false;
@@ -305,6 +307,10 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
             branches = newBranches; //Can't remove from a structure you're looping over
 
+            if (branches.Count == 1) {
+                GetComponent<ArticyFlowPlayer>().Play(branches[0]); //If there's only one branch, we follow it
+            }
+
             dialogueSelector.Setup(options, PlaySelectedBranch); //Pass the dialogue options 
         } else {
             GetComponent<ArticyFlowPlayer>().Play(branches[0]); //If there's only one branch, we follow it
@@ -328,24 +334,51 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     TextCursorAnimate blinkCursor; //Reference to blinky arrow for when you're done of the curent line
 
     IEnumerator TypeLine() {
-        lineScrolling = true;
-        foreach (char c in currentDialogueLines[index].ToCharArray()) {
-            dialogueTextBox.text += c;
-            yield return new WaitForSeconds(textCharacterDelay);
+        //Sanity check: are we coming into an empty setup?
+        if (index >= 0 && index < currentDialogueLines.Length) {
+            lineScrolling = true;
+            foreach (char c in currentDialogueLines[index].ToCharArray()) {
+                dialogueTextBox.text += c;
+                yield return new WaitForSeconds(textCharacterDelay);
+            }
+            lineTypingEffect = null;
+            lineScrolling = false;
+        } else {
+            lineScrolling = true;
+            yield return new WaitForSeconds(textCharacterDelay); //If setup is empty, just wait a 'lil
+            lineScrolling = false;
         }
-        lineTypingEffect = null;
-        lineScrolling = false;
     }
 
     #endregion
 
-    #region ArticyHandling
+    #region LoadDialogue
+
+    public void GetCharacterDialogue(string CharacterName) {
+        ArticyObject start = ArticyDatabase.FilterObjectsBasedOn(ArticyDatabase.FilterObjects("Hub"), CharacterName)[0]; //We search a pre-filtered list of objects contained the name "hub" for the given characters name
+        GetComponent<ArticyFlowPlayer>().StartOn = start;
+        //Debug.Log(start.TechnicalName);
+        StartDialogue();
+    }
+
+    // Absolute hack of a method to play a random Articy reference, no matter what
+    public void PlayArticyRefDangerous(ArticyRef branchRef) {
+        GetComponent<ArticyFlowPlayer>().StartOn = ArticyDatabase.GetObject(branchRef.id);
+        //Debug.Log("Should be starting dialogue on: " + ArticyDatabase.GetObject(branchRef.id).Id);
+        StartDialogue();
+    }
+
+    #endregion
+
+    #region ArticyFlowHandling
 
     public void OnFlowPlayerPaused(IFlowObject flowObject) {
+        //Debug.Log($"Paused flow player object on: {(flowObject != null ? flowObject.ToString() : " null")}");
+
         if (flowObject == null) {
             //Debug.Log("Dead End!");
             CloseDialogueBox(true);
-        } else if (!start) {
+        } else if (!startScene && !startDialogue) {
             //Don't do crap on startup
             string txt = null;
             var displayName = flowObject as IObjectWithDisplayName;
@@ -362,10 +395,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             } else {
                 //Currently Unused
                 var text = flowObject as IObjectWithLocalizableText;
-                if (text != null) {
-                    txt = text.Text;
-                    Debug.Log("Text from IObjectWithLocalizableText: " + txt);
-                }
+                if (text != null) txt = text.Text;
             }
             
             // I think we can get this text directly from the Branches themselves, which is when we would need it.
@@ -378,6 +408,8 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
             if (!txt.IsNullOrEmpty()) {
                 //There is dialogue to load
+
+                //Debug.Log($"Text from IObjectWithLocalizableText: {txt}");
                 
                 //If text is too long for the dialogue box
                 if (txt.Length > maxChars) {
@@ -417,10 +449,15 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
                 //Jump to next branch or close the dialogue box
                 CloseDialogueBox();
             }
+        } else if (!startScene && startDialogue) {
+            StartDialogue(); //For when we start a new chain of dialogue
+        } else {
+            //Very ugly hack to handle the intial scene startup, because Articy thinks its' REALLY FUNNY to immediately proc the FlowPlayer on scene startup.
+            startScene = false;
         }
     }
 
-    // Hack where we just pick the first branch of every dialogue
+    // Private list of branches, so we can iterate through them at our leisure
     private IList<Branch> branches;
 
     public void OnBranchesUpdated(IList<Branch> someBranches) {
