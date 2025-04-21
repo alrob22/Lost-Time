@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Aden/OverWorld.unity
     guid: 9ac9a1d8df1764c4fbecb1cae76bd8eb
   - enabled: 1
+    path: Assets/Scenes/Aden/TownA/TownABuildings/Gate.unity
+    guid: 452bcc0f39f2ff84c82c88853054eef9
+  - enabled: 1
     path: Assets/Scenes/Aden/TownA/TownAHub.unity
     guid: f2b65ed8663e2a6439e91ab7d5b2016c
   - enabled: 1
