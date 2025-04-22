@@ -34,9 +34,10 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
     int index = 0; //Very ugly hack
     IEnumerator lineTypingEffect;
 
-    public bool talking = false;
     bool lineScrolling = false, startDialogue = true, startScene;
     private bool pressBuffer = false, inputLock = false;
+
+    private GameManager gameManager;
 
     // Start is called before the first frame update
     void Start()
@@ -52,6 +53,8 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             currentDialogueLines[0] = "These are the lines in case of an error"; 
             currentDialogueLines[1] = "you shouldn't be seeing these";
         }
+
+        gameManager = GameObject.FindFirstObjectByType<GameManager>();
     }
 
     // Update is called once per frame
@@ -62,7 +65,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             blinkCursor.startBlink(blinkCursorSpeed);
         }
 
-        if (talking && !inputLock && Input.GetAxisRaw("Submit") == 1f && !pressBuffer) {
+        if (gameManager.talking && !inputLock && Input.GetAxisRaw("Submit") == 1f && !pressBuffer) {
             pressBuffer = true;
             if (index < currentDialogueLines.Length && (dialogueTextBox.text == currentDialogueLines[index] || !lineScrolling)) {
                 NextLine();
@@ -77,7 +80,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             else
             {
                 Debug.Log("Nonstandard dialogue box closure");
-                CloseDialogueBox();
+                CloseDialogueBox(true);
             }
             Invoke("noPressBuffer", pressDelaySeconds); //Hack input buffer to stop you from accidentally spamming through dialogue
         } else if (Input.GetAxisRaw("Submit") != 1f) {
@@ -87,7 +90,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
 
     //Buffer inputs so we don't wind update in coversation by holding down the button too long
     private void notTalking() {
-        talking = false;
+        gameManager.talking = false;
     }
 
     //Buffer inputs, but for presses
@@ -95,10 +98,14 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
         pressBuffer = false; 
     }
 
+    public bool getTalking() { //Passthrough for DialogueInteractable
+        return gameManager.talking;
+    }
+
     #region TextReadHandling
 
     public void SetLines(string[] newLines) {
-        //Are we currently talking?
+        //Are we currently gameManager.talking?
         if (!lineScrolling) {
             if (!currentBox.activeSelf) {
                 currentBox.SetActive(true);
@@ -120,8 +127,8 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             startDialogue = false;
             SelectNonBlockingDiaglouegBox();
             GetComponent<ArticyFlowPlayer>().Play(); //Start Playing Dialogue from where we have told the player to start
-        } else if (!talking) {
-            talking = true;
+        } else if (!gameManager.talking) {
+            gameManager.talking = true;
             if (!currentBox.activeSelf) {
                 currentBox.SetActive(true);
             }

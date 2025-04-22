@@ -43,12 +43,12 @@ public class TimeHandler {
             if (hour >= 23) {
                 day++;
                 hour = 0;
-                timeVariables.Day = day; //Update Articy as needed
+                //timeVariables.Day = day; //Update Articy as needed
             } else {
                 hour++;
             }
 
-            timeVariables.TimeOfDay = hour; //Update Articy as needed
+            //timeVariables.TimeOfDay = hour; //Update Articy as needed
         }
         
         if ((minute + 1 + ((hour + day) * 3600)) * 60 < time) {
