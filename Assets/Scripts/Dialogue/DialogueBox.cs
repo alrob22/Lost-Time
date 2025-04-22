@@ -80,7 +80,7 @@ public class DialogueBox : MonoBehaviour, IArticyFlowPlayerCallbacks
             else
             {
                 Debug.Log("Nonstandard dialogue box closure");
-                CloseDialogueBox();
+                CloseDialogueBox(true);
             }
             Invoke("noPressBuffer", pressDelaySeconds); //Hack input buffer to stop you from accidentally spamming through dialogue
         } else if (Input.GetAxisRaw("Submit") != 1f) {
