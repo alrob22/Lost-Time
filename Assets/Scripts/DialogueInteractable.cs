@@ -20,7 +20,7 @@ public class DialoagueInteractable : Interactable
     
     public override void Interact()
     {
-        if (!dialogueBox.talking) {
+        if (!dialogueBox.getTalking()) {
             base.Interact();
             
             if (UseDangerousRef && dangerousDialogueReference != null && dangerousDialogueReference.HasReference) {

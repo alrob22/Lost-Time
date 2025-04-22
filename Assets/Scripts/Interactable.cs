@@ -11,7 +11,7 @@ public class Interactable : MonoBehaviour
         //Debug.Log("Interacted with " + gameObject.name);
 
         // Example: Change the object's color
-        GetComponent<Renderer>().material.color = Color.green;
+        //GetComponent<Renderer>().material.color = Color.green;
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
 

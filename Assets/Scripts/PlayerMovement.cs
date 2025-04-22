@@ -11,46 +11,53 @@ public class PlayerMovement : MonoBehaviour
     public float moveSpeed = 5f; // Speed of movement
     public Rigidbody rb;
 
+    private GameManager gameManager; //So we don't move when we're talking
+
     private void Start() {
         camTrans = Camera.main.transform;
         planeNum = 1;
         rb = GetComponent<Rigidbody>();
+
+        gameManager = GameObject.FindFirstObjectByType<GameManager>(); //Get the GameManager
     }
 
     void FixedUpdate()
     {
-        // Get input from the player
-        float horizontalInput = Input.GetAxis("Horizontal"); // A/D or Left/Right Arrow
-        float verticalInput = Input.GetAxis("Vertical");     // W/S or Up/Down Arrow
+        // Gnarly hack so we can't move while we're talking
+        if (!gameManager.talking) {
+            // Get input from the player
+            float horizontalInput = Input.GetAxis("Horizontal"); // A/D or Left/Right Arrow
+            float verticalInput = Input.GetAxis("Vertical");     // W/S or Up/Down Arrow
 
-        Vector3 forward = camTrans.forward;
-        Vector3 right = camTrans.right;
-        forward.y = 0f;
-        right.y = 0f;
-        forward.Normalize();
-        right.Normalize();
+            Vector3 forward = camTrans.forward;
+            Vector3 right = camTrans.right;
+            forward.y = 0f;
+            right.y = 0f;
+            forward.Normalize();
+            right.Normalize();
 
-        Vector3 movement = (forward * verticalInput + right * horizontalInput).normalized;
+            Vector3 movement = (forward * verticalInput + right * horizontalInput).normalized;
 
-        float speedy = 1f;
+            float speedy = 1f;
 
-        if (Input.GetAxisRaw("Cancel") == 1f) {
-            speedy *= 3f;
-        }
+            if (Input.GetAxisRaw("Cancel") == 1f) {
+                speedy *= 3f;
+            }
 
-        // Move the player and camera only if there is input
-        if (movement.magnitude > 0)
-        {
-            // player
-            rb.MovePosition(transform.position + movement * moveSpeed * Time.fixedDeltaTime);
+            // Move the player and camera only if there is input
+            if (movement.magnitude > 0)
+            {
+                // player
+                rb.MovePosition(transform.position + movement * moveSpeed * Time.fixedDeltaTime);
 
-            // Rotate the player to face the movement direction
-            Quaternion toRotation = Quaternion.LookRotation(movement, Vector3.up);
-            rb.rotation = Quaternion.Slerp(transform.rotation, toRotation, 10f * Time.deltaTime);
+                // Rotate the player to face the movement direction
+                Quaternion toRotation = Quaternion.LookRotation(movement, Vector3.up);
+                rb.rotation = Quaternion.Slerp(transform.rotation, toRotation, 10f * Time.deltaTime);
 
-            // player rigidbody
-            rb.angularVelocity = Vector3.zero;
-            rb.velocity = Vector3.zero;
+                // player rigidbody
+                rb.angularVelocity = Vector3.zero;
+                rb.velocity = Vector3.zero;
+            }
         }
     }
 }
